@@ -1,110 +1,215 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// app/explore.tsx
+import { Colors } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  FlatList,
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+// Define a type for courses
+type Course = {
+  id: string;
+  title: string;
+  category: string;
+};
 
-export default function TabTwoScreen() {
+// You can map categories to colors/icons
+const categoryStyles: Record<string, { color: string; icon: keyof typeof Ionicons.glyphMap }> = {
+  Design: { color: '#FFD6E0', icon: 'color-palette-outline' },
+  Development: { color: '#D0EBFF', icon: 'code-slash-outline' },
+  Business: { color: '#FFE6CC', icon: 'briefcase-outline' },
+  Data: { color: '#E5E5FF', icon: 'bar-chart-outline' },
+};
+
+const allCourses: Course[] = [
+  { id: '1', title: 'UI/UX Design', category: 'Design' },
+  { id: '2', title: 'Web Development', category: 'Development' },
+  { id: '3', title: 'Data Science', category: 'Data' },
+  { id: '4', title: 'Marketing', category: 'Business' },
+  { id: '5', title: 'Machine Learning', category: 'Data' },
+  { id: '6', title: 'Digital Marketing', category: 'Business' },
+  { id: '7', title: 'Mobile App Development', category: 'Development' },
+  { id: '8', title: 'Graphic Design', category: 'Design' },
+  { id: '9', title: 'Python Programming', category: 'Development' },
+  { id: '10', title: 'JavaScript', category: 'Development' },
+  { id: '11', title: 'Business Analytics', category: 'Business' },
+  { id: '12', title: 'Product Management', category: 'Business' },
+  { id: '13', title: 'Cybersecurity', category: 'Development' },
+  { id: '14', title: 'Cloud Computing', category: 'Development' },
+  { id: '15', title: 'Digital Illustration', category: 'Design' },
+  { id: '16', title: 'Public Adminstration', category: 'Business'}
+];
+
+export default function ExploreScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>(allCourses);
+
+  useEffect(() => {
+    if (params.search) {
+      const keyword = params.search.toString();
+      setSearchQuery(keyword);
+      filterCourses(keyword);
+    }
+  }, [params]);
+
+  const filterCourses = (text: string) => {
+    const filtered = allCourses.filter(course =>
+      course.title.toLowerCase().includes(text.toLowerCase()) ||
+      course.category.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredCourses(filtered);
+  };
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    filterCourses(text);
+  };
+
+  const handleCoursePress = (course: Course) => {
+    router.push({
+      pathname: '/courses',
+      params: { course: course.title },
+    });
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.header}>🎓 Explore Courses</Text>
+
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color="#888" />
+            <TextInput
+              placeholder="Search by title or category"
+              placeholderTextColor="#888"
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={handleSearch}
+              returnKeyType="search"
+            />
+          </View>
+
+          {/* Course Grid */}
+          {filteredCourses.length === 0 ? (
+            <Text style={styles.emptyMessage}>No courses found.</Text>
+          ) : (
+            <FlatList
+              data={filteredCourses}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              contentContainerStyle={styles.courseList}
+              columnWrapperStyle={styles.courseRow}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => {
+                const { color, icon } = categoryStyles[item.category] || {
+                  color: '#EEE',
+                  icon: 'school-outline',
+                };
+                return (
+                  <TouchableOpacity
+                    style={[styles.courseCard, { backgroundColor: color }]}
+                    onPress={() => handleCoursePress(item)}
+                  >
+                    <View style={styles.iconWrapper}>
+                      <Ionicons name={icon} size={30} color="#333" />
+                    </View>
+                    <Text style={styles.courseTitle}>{item.title}</Text>
+                    <Text style={styles.courseCategory}>{item.category}</Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </View>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#ADD8E6', // Light Blue Background
+    paddingHorizontal: 20,
   },
-  titleContainer: {
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 20,
+    color: Colors.light.text,
+  },
+  searchContainer: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
+  searchInput: {
+    marginLeft: 10,
+    flex: 1,
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  courseList: {
+    paddingBottom: 100,
+  },
+  courseRow: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  courseCard: {
+    width: '48%',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 2,
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    backgroundColor: '#fff',
+    borderRadius: 40,
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  courseTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  courseCategory: {
+    fontSize: 13,
+    color: '#555',
+    textAlign: 'center',
+  },
+  emptyMessage: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 16,
+    marginTop: 30,
   },
 });

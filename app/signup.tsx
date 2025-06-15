@@ -1,15 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 export default function SignUp() {
@@ -20,6 +21,7 @@ export default function SignUp() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const validateName = (name: string) => name.trim().length > 0;
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -50,11 +52,9 @@ export default function SignUp() {
     }
 
     if (isValid) {
-      console.log('Signup successful');
-      router.push({
-        pathname: '/interface',
-        params: { name, email },
-      });
+      // Log in the user and navigate to the main app
+      login(email, name);
+      router.replace('/(tabs)');
     }
   };
 
