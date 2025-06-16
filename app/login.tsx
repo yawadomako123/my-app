@@ -45,7 +45,11 @@ export default function Login() {
     if (valid) {
       // Log in the user and navigate to the main app
       login(email, name);
-      router.replace('/(tabs)');
+      router.replace({
+        pathname: '/(tabs)/profile',
+        params: { name, email },
+      });
+      
     }
   };
 

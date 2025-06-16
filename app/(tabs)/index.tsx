@@ -93,19 +93,62 @@ export default function InterfaceScreen() {
   const handleCoursePress = (course: any) => {
     router.push(`/courses/${course.id}`);
   };
+  const [profileImage, setProfileImage] = useState<string | null>('https://i.pravatar.cc/150?img=47');
+  const [isEditing, setIsEditing] = useState(false);
 
+
+  const pickImage = async () => {
+    if (!isEditing) return; 
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need gallery permissions to change your profile picture!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+
+      if (!result.canceled) {
+        setProfileImage(result.assets[0].uri);
+      }
+    } catch (e) {
+      console.error('Image picker error:', e);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome{user?.name ? `, ${user.name}` : ' to Coursera'}</Text>
+            <View>
+              <Text style={styles.title}>Welcome{user?.name ? `, ${user.name}` : ' to Coursera'}</Text>
           {user?.name && <Text style={styles.subtitle}>Start learning today!</Text>}
+            </View>
+       
+          <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
+            <Image source={{ uri: profileImage! }} style={styles.avatar} />
+            {isEditing && (
+              <View style={[styles.cameraIconWrapper, { backgroundColor: theme.primary }]}>
+                <Ionicons name="camera" size={18} color="#fff" />
+              </View>
+            )}
+            
+    </TouchableOpacity>
         </View>
         <Text style={styles.subtitle}>What do you want to learn today?</Text>
 
         {/* Categories */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Explore by Category</Text>
+          <View style={styles.categoryTitle}>
+            <Text style={styles.sectionTitle}>Explore by Category</Text>
+            <TouchableOpacity onPress={() => router.push('/explore')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.categoryContainer}>
             {categories.map((cat) => (
               <TouchableOpacity
@@ -198,11 +241,21 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     backgroundColor: Colors.light.background,
   },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 55,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#ccc',
+  },
   scroll: {
     padding: 20,
     paddingBottom: 40,
   },
   header: {
+    flexDirection:'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
   title: {
@@ -239,6 +292,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
+  },
+  categoryTitle:{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: '10',
+    paddingTop: '10'
   },
   categoryName: {
     fontSize: 18,

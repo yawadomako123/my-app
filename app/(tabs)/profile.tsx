@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Image,
@@ -85,6 +85,15 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      
+      {/* Added the settings logo to allow user to personalize the app */}
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 20 }}>
+       <TouchableOpacity onPress={() => router.push('/settings')}>
+      <Ionicons name="settings-outline" size={30} color="#333" />
+      </TouchableOpacity>
+   </View>
+
+
       <ScrollView contentContainerStyle={styles.scroll}>
 
         <View style={styles.header}>
@@ -114,7 +123,7 @@ export default function ProfileScreen() {
             <Text style={[styles.label, { color: theme.muted }]}>Name</Text>
             {isEditing ? (
               <TextInput
-                style={[styles.input, { borderColor: theme.border, color: theme.text }]}
+              style={[styles.input, { borderColor: theme.border, color: theme.text }]}
                 value={name}
                 onChangeText={setName}
                 placeholder="Your name"
@@ -147,6 +156,7 @@ export default function ProfileScreen() {
             <Ionicons name="checkmark-circle-outline" size={26} color={theme.text} />
             <Text style={[styles.statValue, { color: theme.text }]}>{progressData.completedCourses}</Text>
             <Text style={[styles.statLabel, { color: theme.muted }]}>Completed</Text>
+
           </View>
           <View style={[styles.statCard, { backgroundColor: theme.tag }]}>
             <Ionicons name="time-outline" size={26} color={theme.text} />
