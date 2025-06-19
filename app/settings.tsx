@@ -1,9 +1,20 @@
-import { View, Text, ScrollView, Switch, StyleSheet } from 'react-native';
-import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useAuth } from '../contexts/AuthContext';
 
 const Settings = () => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleSignOut = () => {
+    logout();
+    router.replace('/login');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.section}>
@@ -12,6 +23,7 @@ const Settings = () => {
           <View style={styles.row}>
             <Ionicons name="moon-outline" size={30} color="#333" />
             <Text style={styles.rowText}>Dark Mode</Text>
+            <Switch value={darkMode} onValueChange={setDarkMode} />
           </View>
           <View style={styles.row}>
             <Ionicons name="sunny-outline" size={30} color="#333" />
@@ -99,7 +111,7 @@ const Settings = () => {
           <Switch />
         </View>
       </View>
-<View style={styles.section}>
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Language</Text>
         <View style={styles.row}>
           <Ionicons name="globe-outline" size={30} color="#333" />
@@ -114,15 +126,15 @@ const Settings = () => {
         <View style={styles.row}>
           <Ionicons name="person-outline" size={30} color="#333" />
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.rowTitle}>Hello! El Mago</Text>
-            <Text style={styles.description}>Signed in as elmago6225@gmail.com</Text>
+            <Text style={styles.rowTitle}>Hello! {user?.name}</Text>
+            <Text style={styles.description}>Signed in as {user?.email}</Text>
           </View>
         </View>
 
-        <View style={styles.row}>
+        <TouchableOpacity style={styles.row} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={30} color="#333" />
           <Text style={styles.rowText}>Sign Out</Text>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.row}>
           <Ionicons name="mail-outline" size={30} color="#333" />
