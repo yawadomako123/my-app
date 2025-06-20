@@ -1,302 +1,330 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const notifications = [
-  {
-    id: '1',
-    title: '👋 Welcome to Learnova!',
-    description: "Hi! I'm your Learnova Assistant. Ready to start your first course?",
-    time: '09:00 AM',
-  },
-  {
-    id: '2',
-    title: '📈 Course Progress',
-    description: 'Awesome! You have completed 65% of Python. Keep going!',
-    time: 'Yesterday',
-  },
-  {
-    id: '3',
-    title: '🆕 New Course Available',
-    description: 'Check out our new React Native course. Want to explore?',
-    time: '2 days ago',
-  },
-  {
-    id: '4',
-    title: '🎯 Daily Goal',
-    description: "Don't forget to complete your daily lesson!",
-    time: '2 days ago',
-  },
-];
+type Notification = {
+  id: string;
+  title: string;
+  date: string;
+  message: string;
+  isNew: boolean;
+};
 
-const demoReplies = [
-  "I'm here to help! What would you like to learn today?",
-  "You can browse new courses in the Explore tab.",
-  "Keep up the great work!",
-  "Let me know if you have any questions about your courses.",
-];
+const NotificationScreen = () => {
+  const [activeTab, setActiveTab] = useState<'new' | 'previous'>('new');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-export default function NotificationsScreen() {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState(notifications);
-  const [typing, setTyping] = useState(false);
+  // Add expanded state for each notification
+  const [expanded, setExpanded] = useState<{ [id: string]: boolean }>({});
 
-  // Simulate AI reply
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([
-      ...messages,
-      {
-        id: (messages.length + 1).toString(),
-        title: 'You',
-        description: input,
-        time: 'Now',
-        user: true,
-      },
-    ]);
-    setInput('');
-    setTyping(true);
+  const newNotifications: Notification[] = [];
 
-    // Simulate AI typing and reply
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: (prev.length + 1).toString(),
-          title: 'Learnova Assistant',
-          description: demoReplies[Math.floor(Math.random() * demoReplies.length)],
-          time: 'Now',
-        },
-      ]);
-      setTyping(false);
-    }, 1200);
+  // Updated, app-relevant notifications
+  const previousNotifications: Notification[] = [
+    {
+      id: '1',
+      title: 'Course Completed!',
+      date: 'Jun 20, 2025',
+      message: 'Congratulations! You have successfully completed the "React Native for Beginners" course. Check your profile to download your certificate.',
+      isNew: false,
+    },
+    {
+      id: '2',
+      title: 'New Course Recommendation',
+      date: 'Jun 18, 2025',
+      message: 'Based on your interests, we recommend "Advanced JavaScript Concepts". Start learning today and boost your skills!',
+      isNew: false,
+    },
+    {
+      id: '3',
+      title: 'Assignment Due Reminder',
+      date: 'Jun 15, 2025',
+      message: 'Don\'t forget! Your assignment for "UI/UX Design Basics" is due tomorrow. Submit your work to stay on track.',
+      isNew: false,
+    },
+    {
+      id: '4',
+      title: 'Welcome to Learnova!',
+      date: 'Jun 10, 2025',
+      message: 'Welcome to Learnova, your personalized learning platform. Explore courses, track your progress, and achieve your goals!',
+      isNew: false,
+    },
+  ];
+
+  const handleEnableNotifications = () => {
+    setNotificationsEnabled(true);
+  };
+
+  // Toggle expand/collapse for a notification
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
-    <LinearGradient
-      colors={['#e0e7ff', '#fff']}
-      style={styles.gradient}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={80}
-      >
-        <View style={styles.container}>
-          {/* Assistant Header */}
-          <View style={styles.assistantHeader}>
-            <Image
-              source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Coursera_logo.png' }}
-              style={styles.assistantAvatar}
-            />
-            <View>
-              <Text style={styles.assistantName}>Learnova Assistant</Text>
-              <Text style={styles.assistantStatus}>Online</Text>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Notifications</Text>
+      </View>
+
+      {/* Tabs */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'new' && styles.activeTab]}
+          onPress={() => setActiveTab('new')}
+        >
+          <Text style={[styles.tabText, activeTab === 'new' && styles.activeTabText]}>
+            New
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'previous' && styles.activeTab]}
+          onPress={() => setActiveTab('previous')}
+        >
+          <Text style={[styles.tabText, activeTab === 'previous' && styles.activeTabText]}>
+            Previously
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Content */}
+      <ScrollView style={styles.content}>
+        {activeTab === 'new' && !notificationsEnabled && (
+          <View style={styles.enableNotificationsContainer}>
+            <Text style={styles.enableNotificationsTitle}>Get notified about important stuff</Text>
+            <Text style={styles.enableNotificationsSubtitle}>
+              We'll notify you when
+            </Text>
+            <View style={styles.bulletList}>
+              <Text style={styles.bulletPoint}>• Your course progress updates</Text>
+              <Text style={styles.bulletPoint}>• New course recommendations</Text>
+              <Text style={styles.bulletPoint}>• Assignment deadlines</Text>
+              <Text style={styles.bulletPoint}>• Special offers and announcements</Text>
+            </View>
+            <Text style={styles.settingsNote}>You can adjust these settings later.</Text>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>Later</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleEnableNotifications}>
+                <Text style={styles.primaryButtonText}>Get notified</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          {/* Chat Messages */}
-          <FlatList
-            data={messages}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <View style={[
-                styles.messageRow,
-                item.user ? styles.userRow : styles.assistantRow
-              ]}>
-                <Image
-                  source={{
-                    uri: item.user
-                      ? 'https://randomuser.me/api/portraits/men/32.jpg'
-                      : 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Coursera_logo.png',
-                  }}
-                  style={styles.avatar}
-                />
-                <View style={styles.messageContentNoBubble}>
-                  <Text style={[
-                    styles.messageTitle,
-                    item.user && styles.userTitle
-                  ]}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.messageText}>{item.description}</Text>
-                  <View style={styles.messageFooter}>
-                    <Ionicons name="time-outline" size={14} color="#888" style={{ marginRight: 4 }} />
-                    <Text style={styles.time}>{item.time}</Text>
-                  </View>
-                </View>
-              </View>
-            )}
-            ListFooterComponent={
-              typing ? (
-                <View style={[styles.messageRow, styles.assistantRow]}>
-                  <Image
-                    source={{
-                      uri: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Coursera_logo.png',
-                    }}
-                    style={styles.avatar}
-                  />
-                  <View style={styles.messageContentNoBubble}>
-                    <Text style={styles.messageTitle}>Learnova Assistant</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-                      <ActivityIndicator size="small" color="#0056D2" />
-                      <Text style={{ marginLeft: 8, color: '#888' }}>Typing...</Text>
-                    </View>
-                  </View>
-                </View>
-              ) : null
-            }
-            ListEmptyComponent={
-              <Text style={styles.empty}>No notifications yet.</Text>
-            }
-          />
-          {/* User Input */}
-          <View style={styles.inputBar}>
-            <TextInput
-              style={styles.input}
-              placeholder="Ask Learnova Assistant..."
-              value={input}
-              onChangeText={setInput}
-              placeholderTextColor="#888"
-              onSubmitEditing={handleSend}
-              returnKeyType="send"
-            />
-            <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-              <Ionicons name="send" size={22} color="#fff" />
+        )}
+
+        {activeTab === 'new' && notificationsEnabled && newNotifications.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateTitle}>Customize your notifications!</Text>
+            <Text style={styles.emptyStateText}>No notifications yet</Text>
+            <Text style={styles.emptyStateSubtext}>
+              Your notification will appear here once you've received them.
+            </Text>
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>Missing notifications?</Text>
+              <Text style={styles.linkAction}>Go to historical notifications.</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+        )}
+
+        {activeTab === 'previous' && (
+          <View style={styles.previousNotifications}>
+            <Text style={styles.sectionTitle}>Previously</Text>
+            {previousNotifications.map((notification) => (
+              <TouchableOpacity
+                key={notification.id}
+                style={styles.notificationCard}
+                onPress={() => toggleExpand(notification.id)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.notificationHeader}>
+                  <Text style={styles.notificationTitle}>{notification.title}</Text>
+                  <Text style={styles.notificationDate}>{notification.date}</Text>
+                </View>
+                {expanded[notification.id] && (
+                  <Text style={styles.notificationMessage}>{notification.message}</Text>
+                )}
+                <Text style={{ color: '#007AFF', marginTop: 6, fontSize: 13 }}>
+                  {expanded[notification.id] ? 'Hide details ▲' : 'Show details ▼'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>Missing notifications?</Text>
+              <Text style={styles.linkAction}>Go to historical notifications.</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
-  container: { flex: 1, paddingTop: 0 },
-  assistantHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 12,
-    paddingHorizontal: 18,
-    backgroundColor: 'transparent',
-    marginBottom: 4,
-  },
-  assistantAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 12,
+  container: {
+    flex: 1,
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
   },
-  assistantName: {
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eaeaea',
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eaeaea',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#007AFF',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#8e8e93',
+  },
+  activeTabText: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  enableNotificationsContainer: {
+    marginTop: 24,
+  },
+  enableNotificationsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  enableNotificationsSubtitle: {
+    fontSize: 16,
+    marginBottom: 12,
+    color: '#8e8e93',
+  },
+  bulletList: {
+    marginLeft: 16,
+    marginBottom: 24,
+  },
+  bulletPoint: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#000',
+  },
+  settingsNote: {
+    fontSize: 14,
+    color: '#8e8e93',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  primaryButton: {
+    flex: 1,
+    backgroundColor: '#007AFF',
+    padding: 16,
+    borderRadius: 10,
+    marginLeft: 8,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    flex: 1,
+    backgroundColor: '#eaeaea',
+    padding: 16,
+    borderRadius: 10,
+    marginRight: 8,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  emptyState: {
+    marginTop: 48,
+    alignItems: 'center',
+  },
+  emptyStateTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#0056D2',
-    letterSpacing: 0.2,
+    marginBottom: 8,
   },
-  assistantStatus: {
-    fontSize: 13,
-    color: '#4ade80',
-    fontWeight: '600',
-    marginTop: 2,
+  emptyStateText: {
+    fontSize: 16,
+    color: '#8e8e93',
+    marginBottom: 8,
   },
-  list: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 18,
-  },
-  assistantRow: {
-    justifyContent: 'flex-start',
-  },
-  userRow: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'flex-end',
-  },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    marginRight: 10,
-    marginLeft: 10,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  messageContentNoBubble: {
-    backgroundColor: 'transparent',
-    borderRadius: 0,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-    maxWidth: '80%',
-    shadowColor: 'transparent',
-    elevation: 0,
-  },
-  messageTitle: {
-    fontWeight: 'bold',
+  emptyStateSubtext: {
     fontSize: 14,
-    color: '#0056D2',
-    marginBottom: 2,
-    letterSpacing: 0.2,
-  },
-  userTitle: {
-    color: '#6366F1',
-  },
-  messageText: {
-    fontSize: 15,
-    color: '#222',
-    marginBottom: 6,
-    lineHeight: 21,
-  },
-  messageFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  time: {
-    fontSize: 12,
-    color: '#888',
-  },
-  empty: {
-    color: '#888',
+    color: '#8e8e93',
     textAlign: 'center',
-    marginTop: 40,
-    fontSize: 16,
+    marginBottom: 24,
   },
-  inputBar: {
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8e8e93',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  previousNotifications: {
+    paddingBottom: 32,
+  },
+  notificationCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 12,
+  },
+  notificationHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  input: {
-    flex: 1,
+  notificationTitle: {
     fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 20,
-    marginRight: 10,
-    color: '#222',
+    fontWeight: '600',
   },
-  sendButton: {
-    backgroundColor: '#0056D2',
-    borderRadius: 20,
-    padding: 8,
-    justifyContent: 'center',
+  notificationDate: {
+    fontSize: 14,
+    color: '#8e8e93',
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: '#000',
+    lineHeight: 20,
+  },
+  linkButton: {
+    marginTop: 16,
     alignItems: 'center',
+  },
+  linkText: {
+fontSize: 14,
+    color: '#8e8e93',
+  },
+  linkAction: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginTop: 4,
   },
 });
+
+export default NotificationScreen;
