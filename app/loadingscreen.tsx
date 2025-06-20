@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-export default function WelcomeScreen() {
+export default function loadingscreen() {
   const router = useRouter();
 
   useEffect(() => {

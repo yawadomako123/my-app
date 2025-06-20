@@ -11,7 +11,7 @@ export default function RootLayout() {
     // Hide splash screen after a short delay
     const timer = setTimeout(() => {
       SplashScreen.hideAsync();
-    }, 500);
+    }, 100); // 1.5 seconds
     
     return () => clearTimeout(timer);
   }, []);
@@ -19,7 +19,6 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-        <Stack.Screen name="loadingscreen" />
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />

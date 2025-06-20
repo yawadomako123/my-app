@@ -1,17 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -55,7 +55,7 @@ export default function SignUp() {
       // Log in the user and navigate to the main app
       login(email, name);
       router.replace({
-        pathname: '/(tabs)/profile',
+        pathname: '/(tabs)',
         params: { name, email },
       });
       

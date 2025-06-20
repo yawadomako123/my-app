@@ -1,24 +1,25 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -46,7 +47,7 @@ export default function Login() {
       // Log in the user and navigate to the main app
       login(email, name);
       router.replace({
-        pathname: '/(tabs)/profile',
+        pathname: '/(tabs)',
         params: { name, email },
       });
       
@@ -91,7 +92,7 @@ export default function Login() {
             placeholderTextColor="#999"
             onChangeText={setPassword}
             value={password}
-            secureTextEntry
+            secureTextEntry={!showPassword}
           />
           {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
