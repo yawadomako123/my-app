@@ -130,9 +130,7 @@ export default function InterfaceScreen() {
       <SafeAreaView style={styles.container}>
         {/* Top Bar */}
         <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Ionicons name="settings-outline" size={28} color={Colors.light.primary} />
-          </TouchableOpacity>
+          
           <TouchableOpacity
             style={styles.notificationIcon}
             onPress={() => router.push('/notifications')}
