@@ -20,6 +20,7 @@ export default function SignUp() {
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -96,14 +97,30 @@ export default function SignUp() {
           />
           {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            onChangeText={setPassword}
-            value={password}
-            secureTextEntry
-          />
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              onChangeText={setPassword}
+              value={password}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                right: 16,
+                top: 18,
+                zIndex: 1,
+              }}
+              onPress={() => setShowPassword((prev) => !prev)}
+              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+            >
+              <Text style={{ color: '#888', fontWeight: 'bold', fontSize: 14 }}>
+                {showPassword ? 'Hide' : 'Show'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
@@ -165,6 +182,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 16,
+    top: 12,
   },
   error: {
     color: '#ff4d4f',

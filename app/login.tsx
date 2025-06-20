@@ -86,14 +86,30 @@ export default function Login() {
           />
           {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            onChangeText={setPassword}
-            value={password}
-            secureTextEntry={!showPassword}
-          />
+          <View style={{ position: 'relative' }}>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              onChangeText={setPassword}
+              value={password}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                right: 16,
+                top: 18,
+                zIndex: 1,
+              }}
+              onPress={() => setShowPassword((prev) => !prev)}
+              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+            >
+              <Text style={{ color: '#888', fontWeight: 'bold', fontSize: 14 }}>
+                {showPassword ? 'Hide' : 'Show'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
