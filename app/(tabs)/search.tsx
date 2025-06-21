@@ -1,453 +1,245 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  Platform,
-  StyleSheet,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-type CareerOrCourse = {
-  id: string;
-  title: string;
-  type: 'course' | 'career';
-  description?: string;
-  category?: string;
-};
+  StyleSheet,
+  ScrollView,
+} from 'react-native'
+import React, { useState } from 'react'
+import { Ionicons } from '@expo/vector-icons'
+import { allCourses, Course } from './explore' // ✅ Adjust path as needed
 
-// Mock data for search
-const mockCourses: CareerOrCourse[] = [
-  {
-    id: '1',
-    title: 'Introduction to Python',
-    type: 'course',
-    description: 'Learn Python programming basics',
-    category: 'Programming'
-  },
-  {
-    id: '2',
-    title: 'Web Development Bootcamp',
-    type: 'course',
-    description: 'Full stack web development course',
-    category: 'Web Development'
-  },
-  {
-    id: '3',
-    title: 'Data Science Career Path',
-    type: 'career',
-    description: 'Become a data scientist',
-    category: 'Data Science'
-  }];
+const popularSearches = ['AI Tools', 'React Native', 'UX Design', 'Startup Jobs', 'Cyber Security', 'Web Development', 'Data Analysis', 'Game Development', 'Mobile App Development','Cloud Computing','Product Management', 'Machine Learning']
 
-// Local storage for recent searches
-const RECENT_SEARCHES_KEY = 'recentSearches';
+const Search = () => {
+  const [query, setQuery] = useState('')
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([])
 
-const getRecentSearches = async (): Promise<string[]> => {
-  try {
-    // In a real app, you would use AsyncStorage or similar
-    const recent = localStorage.getItem(RECENT_SEARCHES_KEY);
-    return recent ? JSON.parse(recent) : [];
-  } catch (error) {
-    console.error('Error getting recent searches:', error);
-    return [];
+  const filterCourses = (text: string) => {
+    const filtered = allCourses.filter(course =>
+      course.title.toLowerCase().includes(text.toLowerCase()) ||
+      course.category.toLowerCase().includes(text.toLowerCase())
+    )
+    setFilteredCourses(filtered)
   }
-};
 
-const saveRecentSearch = async (query: string): Promise<void> => {
-  try {
-    const recent = await getRecentSearches();
-    const updated = [query, ...recent.filter(item => item !== query)].slice(0, 5);
-    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
-  } catch (error) {
-    console.error('Error saving recent search:', error);
+  const handleSearch = () => {
+    const trimmed = query.trim()
+    if (!trimmed) return
+
+    const updated = [trimmed, ...recentSearches.filter(item => item !== trimmed)]
+    setRecentSearches(updated.slice(0, 5))
+    filterCourses(trimmed)
+    setQuery('')
   }
-};
 
-const searchAll = async (query: string): Promise<CareerOrCourse[]> => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  if (!query.trim()) return [];
-  
-  const lowerQuery = query.toLowerCase();
-  return mockCourses.filter(
-    item => item.title.toLowerCase().includes(lowerQuery) ||
-            item.description?.toLowerCase().includes(lowerQuery) ||
-            item.category?.toLowerCase().includes(lowerQuery)
-  );
-};
+  const clearRecent = () => setRecentSearches([])
 
-export default function SearchScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<CareerOrCourse[]>([]);
-  const [recentSearches, setRecentSearchesState] = useState<string[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const router = useRouter();
+  const removeRecentItem = (itemToRemove: string) => {
+    setRecentSearches(recentSearches.filter(item => item !== itemToRemove))
+  }
 
-  useEffect(() => {
-    const loadRecent = async () => {
-      const recent = await getRecentSearches();
-      setRecentSearchesState(recent);
-    };
-    const handleClearRecent = () => {
-      localStorage.removeItem(RECENT_SEARCHES_KEY);
-      setRecentSearchesState([]);
-    };
-    loadRecent();
-  }, []);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-    const handler = setTimeout(async () => {
-      try {
-        const results = await searchAll(searchQuery);
-        setSearchResults(results);
-        await saveRecentSearch(searchQuery);
-        const recent = await getRecentSearches();
-        setRecentSearchesState(recent);
-      } catch (error) {
-        console.error('Search error:', error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-
-  const handleSearchChange = async (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleRecentPress = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleRemoveRecent = async (query: string) => {
-    const updated = recentSearches.filter(item => item !== query);
-    setRecentSearchesState(updated);
-    await setRecentSearches(updated);
-  };
-
-  const renderResultItem = ({ item }: { item: CareerOrCourse }) => {
-    const routeBase = item.type === 'career' ? '/career/' : '/course/';
-    const routeId = item.id.replace(`${item.type}-`, '');
-
-    return (
+  const renderRecentItem = (text: string) => (
+    <View key={text} style={styles.recentItem}>
       <TouchableOpacity
-        style={styles.resultItem}
-        activeOpacity={0.8}
-        onPress={() => router.push(`${routeBase}${routeId}`)}
-      >
-        <View style={styles.resultContent}>
-          <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
-            <MaterialCommunityIcons
-              name={item.icon || 'briefcase'}
-              size={26}
-              color="#1976d2"
-            />
-          </View>
-          <View style={styles.resultTextContainer}>
-            <Text style={styles.resultTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.resultCategory} numberOfLines={1}>{item.category}</Text>
-            {item.likes?.length > 0 && (
-              <View style={styles.likesContainer}>
-                {item.likes.slice(0, 2).map((like, index) => (
-                  <View key={index} style={styles.likeTag}>
-                    <Text style={styles.likeText}>{like}</Text>
-                  </View>
-                ))}
-                {item.likes.length > 2 && (
-                  <Text style={styles.moreLikes}>+{item.likes.length - 2} more</Text>
-                )}
-              </View>
-            )}
-          </View>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#888" />
-      </TouchableOpacity>
-    );
-  };
-
-  const renderRecentItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={styles.recentSearchItem}
-      activeOpacity={0.7}
-      onPress={() => handleRecentPress(item)}
-    >
-      <Ionicons name="time-outline" size={20} color="#888" />
-      <Text style={styles.recentSearchText} numberOfLines={1}>{item}</Text>
-      <TouchableOpacity
-        style={styles.clearRecentSearch}
-        onPress={(e) => {
-          e.stopPropagation();
-          handleRemoveRecent(item);
+        onPress={() => {
+          setQuery(text)
+          filterCourses(text)
         }}
+        style={styles.recentItemTextWrapper}
+        activeOpacity={0.7}
       >
-        <Ionicons name="close" size={20} color="#bbb" />
+        <Ionicons name="time-outline" size={20} color="#6b7280" style={{ marginRight: 12 }} />
+        <Text style={styles.recentItemText}>{text}</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => removeRecentItem(text)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        style={styles.closeIconWrapper}
+      >
+        <Ionicons name="close-circle" size={22} color="#ef4444" />
+      </TouchableOpacity>
+    </View>
+  )
+
+  const renderPopularItem = (text: string) => (
+    <TouchableOpacity
+      key={text}
+      onPress={() => {
+        setQuery(text)
+        filterCourses(text)
+      }}
+      style={styles.topicBadge}
+      activeOpacity={0.8}
+    >
+      <Ionicons name="book-outline" size={16} color="#2563eb" style={{ marginRight: 6 }} />
+      <Text style={styles.topicText}>{text}</Text>
     </TouchableOpacity>
-  );
+  )
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={22} color="#666" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search careers and courses..."
-            placeholderTextColor="#999"
-            value={searchQuery}
-            onChangeText={handleSearchChange}
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-            returnKeyType="search"
-          />
-          {searchQuery !== '' && (
-            <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
-              <Ionicons name="close-circle" size={22} color="#999" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <TextInput
+        placeholder="What do you want to learn?"
+        value={query}
+        onChangeText={(text) => {
+          setQuery(text)
+          filterCourses(text)
+        }}
+        onSubmitEditing={handleSearch}
+        style={styles.input}
+        returnKeyType="search"
+        clearButtonMode="while-editing"
+      />
 
-      {isSearching ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#1976d2" />
-          <Text style={styles.loadingText}>Searching...</Text>
-        </View>
-      ) : searchQuery === '' ? (
-        <View style={styles.recentSearchesContainer}>
-          <Text style={styles.sectionTitle}>Recent Searches</Text>
-          {recentSearches.length > 0 ? (
-            <FlatList
-              data={recentSearches}
-              renderItem={renderRecentItem}
-              keyExtractor={(item, index) => `recent-${index}`}
-              style={styles.recentSearchesList}
-              keyboardShouldPersistTaps="handled"
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Ionicons name="search-outline" size={60} color="#ddd" />
-              <Text style={styles.emptyStateText}>Your recent searches will appear here</Text>
-            </View>
-          )}
-        </View>
-      ) : searchResults.length > 0 ? (
-        <FlatList
-          data={searchResults}
-          renderItem={renderResultItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.resultsListContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <View style={styles.emptyState}>
-          <Ionicons name="alert-circle-outline" size={60} color="#ddd" />
-          <Text style={styles.emptyStateText}>No results found</Text>
+      {/* Recent Searches */}
+      {recentSearches.length > 0 && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Searches</Text>
+            <TouchableOpacity onPress={clearRecent} activeOpacity={0.7}>
+              <Text style={styles.clearButton}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.recentList}>{recentSearches.map(renderRecentItem)}</View>
         </View>
       )}
-    </SafeAreaView>
-  );
+
+      {/* Search Results – only show if user is typing */}
+      {query.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Search Results</Text>
+          {filteredCourses.length === 0 ? (
+            <Text style={{ color: '#6b7280', marginTop: 10 }}>No courses found.</Text>
+          ) : (
+            filteredCourses.map((course) => (
+              <View key={course.id} style={styles.resultItem}>
+                <Text style={styles.resultTitle}>{course.title}</Text>
+                <Text style={styles.resultCategory}>{course.category}</Text>
+              </View>
+            ))
+          )}
+        </View>
+      )}
+
+      {/* Popular Topics */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Popular Topics</Text>
+        </View>
+        <View style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
+      </View>
+    </ScrollView>
+  )
 }
 
+export default Search
+
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#fafafa', // softer background
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#f9fafb',
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 40,
   },
-  header: {
-    backgroundColor: '#fff',
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    zIndex: 10,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginTop: Platform.OS === 'ios' ? 12 : 16,
-    marginBottom: 12,
-    paddingHorizontal: 18,
+  input: {
     height: 52,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  searchIcon: { marginRight: 14 },
-  searchInput: {
-    flex: 1,
-    height: '100%',
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#222',
-  },
-  clearButton: {
-    padding: 8,
-    marginLeft: 6,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  loadingText: {
-    marginTop: 14,
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#444',
-  },
-  recentSearchesContainer: { 
-    flex: 1, 
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#64748b',
-    marginBottom: 14,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  recentSearchItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
     paddingHorizontal: 18,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
+    fontSize: 17,
+    color: '#111827',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 28,
   },
-  recentSearchText: {
-    flex: 1,
-    marginLeft: 14,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1e293b',
+  section: {
+    marginBottom: 32,
   },
-  clearRecentSearch: {
-    padding: 6,
-    marginLeft: 12,
-  },
-  resultsListContent: { 
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    paddingTop: 6,
-  },
-  resultItem: {
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  clearButton: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ef4444',
+  },
+  recentList: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#e0e7ff',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
     elevation: 4,
   },
-  resultContent: {
-    flex: 1,
+  recentItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    justifyContent: 'center',
+  recentItemTextWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 18,
-    backgroundColor: '#dbeafe',
-  },
-  resultTextContainer: {
     flex: 1,
-    justifyContent: 'center',
   },
-  resultTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 6,
+  recentItemText: {
+    fontSize: 16,
+    color: '#374151',
   },
-  resultCategory: {
-    fontSize: 15,
-    color: '#64748b',
-    marginBottom: 8,
+  closeIconWrapper: {
+    paddingLeft: 16,
   },
-  likesContainer: {
+  topicsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 10,
   },
-  likeTag: {
-    backgroundColor: '#dbeafe',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginRight: 8,
-    marginBottom: 4,
+  topicBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e0f2fe',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 10,
+    marginBottom: 10,
   },
-  likeText: {
-    fontSize: 13,
+  topicText: {
+    fontSize: 15,
     color: '#2563eb',
     fontWeight: '600',
   },
-  moreLikes: {
-    fontSize: 13,
-    color: '#64748b',
-    marginLeft: 6,
-    alignSelf: 'center',
+  resultItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#e5e7eb',
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 36,
+  resultTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
   },
-  emptyStateText: {
-    fontSize: 18,
-    color: '#9ca3af',
-    marginTop: 20,
-    textAlign: 'center',
-    fontWeight: '500',
+  resultCategory: {
+    fontSize: 14,
+    color: '#6b7280',
   },
-});
+})
