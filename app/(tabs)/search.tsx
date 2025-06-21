@@ -8,9 +8,15 @@ import {
 } from 'react-native'
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import { allCourses, Course } from './explore' // ✅ Adjust path as needed
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { allCourses, Course } from './explore' // ✅ Adjust import if needed
 
-const popularSearches = ['AI Tools', 'React Native', 'UX Design', 'Startup Jobs', 'Cyber Security', 'Web Development', 'Data Analysis', 'Game Development', 'Mobile App Development','Cloud Computing','Product Management', 'Machine Learning']
+const popularSearches = [
+  'AI Tools', 'React Native', 'UX Design', 'Startup Jobs',
+  'Cyber Security', 'Web Development', 'Data Analysis',
+  'Game Development', 'Mobile App Development',
+  'Cloud Computing', 'Product Management', 'Machine Learning'
+]
 
 const Search = () => {
   const [query, setQuery] = useState('')
@@ -28,7 +34,6 @@ const Search = () => {
   const handleSearch = () => {
     const trimmed = query.trim()
     if (!trimmed) return
-
     const updated = [trimmed, ...recentSearches.filter(item => item !== trimmed)]
     setRecentSearches(updated.slice(0, 5))
     filterCourses(trimmed)
@@ -37,9 +42,8 @@ const Search = () => {
 
   const clearRecent = () => setRecentSearches([])
 
-  const removeRecentItem = (itemToRemove: string) => {
-    setRecentSearches(recentSearches.filter(item => item !== itemToRemove))
-  }
+  const removeRecentItem = (item: string) =>
+    setRecentSearches(recentSearches.filter(i => i !== item))
 
   const renderRecentItem = (text: string) => (
     <View key={text} style={styles.recentItem}>
@@ -80,70 +84,77 @@ const Search = () => {
   )
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <TextInput
-        placeholder="What do you want to learn?"
-        value={query}
-        onChangeText={(text) => {
-          setQuery(text)
-          filterCourses(text)
-        }}
-        onSubmitEditing={handleSearch}
-        style={styles.input}
-        returnKeyType="search"
-        clearButtonMode="while-editing"
-      />
+    <SafeAreaView style={styles.wrapper}>
+      {/* Search Bar */}
+      <View style={styles.searchBarWrapper}>
+        <TextInput
+          placeholder="What do you want to learn?"
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text)
+            filterCourses(text)
+          }}
+          onSubmitEditing={handleSearch}
+          style={styles.input}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+        />
+      </View>
 
-      {/* Recent Searches */}
-      {recentSearches.length > 0 && (
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {/* Search Results (only while typing) */}
+        {query.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Search Results</Text>
+            {filteredCourses.length === 0 ? (
+              <Text style={{ color: '#6b7280', marginTop: 10 }}>No courses found.</Text>
+            ) : (
+              filteredCourses.map(course => (
+                <View key={course.id} style={styles.resultItem}>
+                  <Text style={styles.resultTitle}>{course.title}</Text>
+                  <Text style={styles.resultCategory}>{course.category}</Text>
+                </View>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* Recent Searches */}
+        {recentSearches.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Recent Searches</Text>
+              <TouchableOpacity onPress={clearRecent} activeOpacity={0.7}>
+                <Text style={styles.clearButton}>Clear All</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.recentList}>{recentSearches.map(renderRecentItem)}</View>
+          </View>
+        )}
+
+        {/* Popular Topics */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Searches</Text>
-            <TouchableOpacity onPress={clearRecent} activeOpacity={0.7}>
-              <Text style={styles.clearButton}>Clear All</Text>
-            </TouchableOpacity>
+            <Text style={styles.sectionTitle}>Popular Topics</Text>
           </View>
-          <View style={styles.recentList}>{recentSearches.map(renderRecentItem)}</View>
+          <View style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
         </View>
-      )}
-
-      {/* Search Results – only show if user is typing */}
-      {query.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Search Results</Text>
-          {filteredCourses.length === 0 ? (
-            <Text style={{ color: '#6b7280', marginTop: 10 }}>No courses found.</Text>
-          ) : (
-            filteredCourses.map((course) => (
-              <View key={course.id} style={styles.resultItem}>
-                <Text style={styles.resultTitle}>{course.title}</Text>
-                <Text style={styles.resultCategory}>{course.category}</Text>
-              </View>
-            ))
-          )}
-        </View>
-      )}
-
-      {/* Popular Topics */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Topics</Text>
-        </View>
-        <View style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
 export default Search
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
+  wrapper: {
+    flex: 1,
     backgroundColor: '#f9fafb',
+    paddingTop: 20,
+  },
+  searchBarWrapper: {
     paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 40,
+    marginBottom: 10,
   },
   input: {
     height: 52,
@@ -157,7 +168,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
-    marginBottom: 28,
+  },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   section: {
     marginBottom: 32,
