@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Define a type for courses
-type Course = {
+export type Course = {
   id: string;
   title: string;
   category: string;
@@ -30,7 +30,7 @@ const categoryStyles: Record<string, { color: string; icon: keyof typeof Ionicon
   Data: { color: '#E5E5FF', icon: 'bar-chart-outline' },
 };
 
-const allCourses: Course[] = [
+export const allCourses: Course[] = [
   { id: '1', title: 'UI/UX Design', category: 'Design' },
   { id: '2', title: 'Web Development', category: 'Development' },
   { id: '3', title: 'Data Science', category: 'Data' },
