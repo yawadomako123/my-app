@@ -9,7 +9,7 @@ import {
 import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { allCourses, Course } from './explore' // ✅ Adjust import if needed
+import { allCourses, Course } from './explore' 
 
 const popularSearches = [
   'AI Tools', 'React Native', 'UX Design', 'Startup Jobs',

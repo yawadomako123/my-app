@@ -531,6 +531,7 @@ const styles = StyleSheet.create({
   },
   likesContainer: {
     flexDirection: 'row',
+    gap:10,
     flexWrap: 'wrap',
     marginTop: 12,
   },
