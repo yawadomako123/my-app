@@ -198,7 +198,7 @@ const careers = [
     description: 'Dispense medications and provide expertise on drug use.',
     likes: ['Medications', 'Patient Safety', 'Consultation'],
     category: 'Healthcare',
-    icon: 'pharmacy',
+    icon: 'medical-bag',
   },
   {
     title: 'Medical Laboratory Scientist',
