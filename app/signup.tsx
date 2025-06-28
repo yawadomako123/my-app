@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -25,7 +24,8 @@ export default function SignUp() {
   const { login } = useAuth();
 
   const validateName = (name: string) => name.trim().length > 0;
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 8;
 
   const handleSignUp = () => {
@@ -53,13 +53,11 @@ export default function SignUp() {
     }
 
     if (isValid) {
-      // Log in the user and navigate to the main app
       login(email, name);
       router.replace({
         pathname: '/(tabs)',
         params: { name, email },
       });
-      
     }
   };
 
@@ -69,79 +67,67 @@ export default function SignUp() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#ff758c', '#ff7eb3']} style={styles.gradientBackground}>
-        <KeyboardAvoidingView
-          style={styles.inner}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-          <Text style={styles.title}>Create Account</Text>
+      <KeyboardAvoidingView
+        style={styles.inner}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Text style={styles.title}>Create Account</Text>
 
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          placeholderTextColor="#999"
+          onChangeText={setName}
+          value={name}
+          autoCapitalize="words"
+        />
+        {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#999"
+          onChangeText={setEmail}
+          value={email}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+
+        <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder="Password"
             placeholderTextColor="#999"
-            onChangeText={setName}
-            value={name}
-            autoCapitalize="words"
+            onChangeText={setPassword}
+            value={password}
+            secureTextEntry={!showPassword}
           />
-          {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            onChangeText={setEmail}
-            value={email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
-
-          <View style={{ position: 'relative' }}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#999"
-              onChangeText={setPassword}
-              value={password}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 18,
-                zIndex: 1,
-              }}
-              onPress={() => setShowPassword((prev) => !prev)}
-              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
-            >
-              <Text style={{ color: '#888', fontWeight: 'bold', fontSize: 14 }}>
-                {showPassword ? 'Hide' : 'Show'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
-
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <LinearGradient
-              colors={['#43e97b', '#38f9d7']}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>Sign Up</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Already have an account?{' '}
-              <Text style={styles.link} onPress={handleLoginRedirect}>
-                Login
-              </Text>
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setShowPassword((prev) => !prev)}
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+          >
+            <Text style={styles.togglePasswordText}>
+              {showPassword ? 'Hide' : 'Show'}
             </Text>
-          </View>
-        </KeyboardAvoidingView>
-      </LinearGradient>
+          </TouchableOpacity>
+        </View>
+        {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Already have an account?{' '}
+            <Text style={styles.link} onPress={handleLoginRedirect}>
+              Login
+            </Text>
+          </Text>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -149,12 +135,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradientBackground: {
-    flex: 1,
-    paddingTop: 50,
-    paddingBottom: 50,
-    justifyContent: 'center',
+    backgroundColor: '#E6F0FF',
   },
   inner: {
     flex: 1,
@@ -162,17 +143,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0056D2',
     textAlign: 'center',
     marginBottom: 32,
   },
   input: {
     backgroundColor: '#fff',
-    borderColor: '#ddd',
+    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
@@ -181,7 +162,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 1,
   },
   passwordContainer: {
     position: 'relative',
@@ -189,23 +170,25 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 16,
-    top: 12,
+    top: 18,
+  },
+  togglePasswordText: {
+    color: '#4E5D78',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   error: {
-    color: '#ff4d4f',
+    color: '#EA5455',
     fontSize: 13,
     marginBottom: 8,
     marginLeft: 4,
   },
   button: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 12,
-  },
-  buttonGradient: {
+    backgroundColor: '#0056D2',
+    borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
-    borderRadius: 12,
+    marginTop: 16,
   },
   buttonText: {
     color: '#fff',
@@ -218,10 +201,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#fff',
+    color: '#4E5D78',
   },
   link: {
     fontWeight: 'bold',
-    color: '#ffd700',
+    color: '#0056D2',
   },
 });
