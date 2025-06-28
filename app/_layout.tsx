@@ -3,26 +3,23 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AuthProvider } from '../contexts/AuthContext';
 
-// Keep the splash screen visible briefly
+// Keep splash screen visible until we hide it manually
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useEffect(() => {
-    // Hide splash screen after a short delay
+    // Hide splash screen after a short delay (or immediately if you prefer)
     const timer = setTimeout(() => {
       SplashScreen.hideAsync();
-    }, 100); // 1.5 seconds
-    
+    }, 100); // Adjust delay if needed
+
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <AuthProvider>
-      <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      {/* Let Expo Router automatically handle all screens */}
+      <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
     </AuthProvider>
   );
 }

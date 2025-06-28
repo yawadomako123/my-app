@@ -73,7 +73,7 @@ export default function LoadingScreen() {
         ]}
       />
       <Animated.View style={{ transform: [{ translateY: slideAnim }], opacity: fadeAnim }}>
-        <Text style={styles.title}>Welcome to Learnova</Text>
+        <Text style={styles.title}>Welcome to Learnable</Text>
         <Text style={styles.subtitle}>Start your learning journey today</Text>
       </Animated.View>
       <Animated.View style={{ marginTop: 40, transform: [{ rotate: spin }] }}>
