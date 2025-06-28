@@ -10,12 +10,13 @@ import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { allCourses, Course } from './explore' 
+import { Colors } from '@/constants/Colors'
 
 const popularSearches = [
-  'AI Tools', 'React Native', 'UX Design', 'Startup Jobs',
+   'UX Design', 'Startup Jobs',
   'Cyber Security', 'Web Development', 'Data Analysis',
   'Game Development', 'Mobile App Development',
-  'Cloud Computing', 'Product Management', 'Machine Learning'
+  'Cloud Computing', 'Product Management',
 ]
 
 const Search = () => {
@@ -107,7 +108,7 @@ const Search = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Search Results</Text>
             {filteredCourses.length === 0 ? (
-              <Text style={{ color: '#6b7280', marginTop: 10 }}>No courses found.</Text>
+              <Text style={{ color: Colors.light.text, marginTop: 10 }}>No courses found.</Text>
             ) : (
               filteredCourses.map(course => (
                 <View key={course.id} style={styles.resultItem}>
@@ -149,7 +150,7 @@ export default Search
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: Colors.light.background,
     paddingTop: 20,
   },
   searchBarWrapper: {
@@ -158,11 +159,11 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 52,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.light.surface,
     borderRadius: 12,
     paddingHorizontal: 18,
     fontSize: 17,
-    color: '#111827',
+    color: Colors.light.text,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -181,12 +182,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    margin:20,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: Colors.light.text,
   },
   clearButton: {
     fontSize: 14,

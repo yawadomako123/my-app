@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 
 const lightTheme = {
-  background: '#FDF6F0',
+  background: '#F8FAFC',
   card: '#FFFFFF',
   primary: '#6366F1',
   accent: '#F97316',
@@ -109,13 +109,8 @@ export default function ProfileScreen() {
   const profileCompletion = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100);
 
   return (
-    <LinearGradient
-      colors={['#e0e7ff', '#fff']}
-      style={styles.gradient}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
+
+      <SafeAreaView style={[styles.container, { backgroundColor: '#F8FAFC' }]}>
         {/* Settings Icon */}
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 20 }}>
           <TouchableOpacity onPress={() => router.push('/settings')}>
@@ -420,7 +415,6 @@ export default function ProfileScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
   );
 }
 

@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '@/constants/Colors';
 
 const Settings = () => {
   const { user, logout } = useAuth();
@@ -309,7 +310,7 @@ const Settings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f8fa',
+    backgroundColor: Colors.light.background,
     paddingHorizontal: 10,
     paddingTop: 60,
   },

@@ -142,7 +142,7 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ADD8E6', // Light Blue Background
+    backgroundColor: '#F8FAFC', // Light Blue Background
     paddingHorizontal: 20,
   },
   header: {
@@ -150,15 +150,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 20,
-    color: Colors.light.text,
+    textAlign: 'center',
+    color: Colors.light.primary,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor:Colors.light.surface ,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
+    marginTop: 10,
     marginBottom: 20,
   },
   searchInput: {
@@ -172,7 +174,8 @@ const styles = StyleSheet.create({
   },
   courseRow: {
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 20,
+    
   },
   courseCard: {
     width: '48%',

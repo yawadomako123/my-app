@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -408,7 +409,7 @@ export default function CareerScreen() {
                 <MaterialCommunityIcons
                   name={career.icon}
                   size={30}
-                  color="#4F46E5"
+                  color={Colors.light.primary}
                 />
                 <View style={{ flex: 1, marginLeft: 10 }}>
                   <Text style={styles.cardTitle}>{career.title}</Text>
@@ -437,14 +438,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1E293B',
-    marginBottom: 4,
+     fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: Colors.light.primary,
   },
   subheader: {
     fontSize: 16,
-    color: '#64748B',
+    textAlign:'center',
+    color: Colors.light.text,
     marginBottom: 16,
   },
   filtersContainer: {
@@ -481,8 +485,8 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   activeFilterButton: {
-    backgroundColor: '#4338CA',
-    borderColor: '#3730A3',
+    backgroundColor: Colors.light.primary,
+    borderColor: Colors.light.primary,
   },
   filterText: {
     fontSize: 14,
@@ -545,7 +549,7 @@ const styles = StyleSheet.create({
   },
   likeText: {
     fontSize: 12,
-    color: '#4F46E5',
+    color: Colors.light.primary,
     fontWeight: '500',
   },
 });
