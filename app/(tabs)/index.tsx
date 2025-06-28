@@ -37,19 +37,19 @@ background: '#F8FAFC',
 const categories = [
   {
     name: 'Technology',
-    // description: 'Code, build, and master the future.',
+    description: 'Code, build, and master the future.',
     icon: 'code-slash-outline',
     search: 'Development',
   },
   {
     name: 'Business',
-    // description: 'Marketing, leadership, and strategy.',
+    description: 'Marketing, leadership, and strategy.',
     icon: 'briefcase-outline',
     search: 'Business',
   },
   {
     name: 'Design',
-    // description: 'UI, UX, and creative skills.',
+    description: 'UI, UX, and creative skills.',
     icon: 'color-palette-outline',
     search: 'Design',
   },

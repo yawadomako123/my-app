@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,14 +7,18 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
+  Animated,
+  Pressable,
+  TouchableOpacity,
 } from 'react-native';
+import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -56,6 +60,24 @@ export default function Login() {
     router.push('/signup');
   };
 
+  // Animation logic
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -63,52 +85,73 @@ export default function Login() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Text style={styles.title}>Welcome Back</Text>
+<View style={styles.inputGroup}>
+  <TextInput
+    style={styles.input}
+    placeholder="Full Name"
+    placeholderTextColor="#999"
+    onChangeText={setName}
+    value={name}
+  />
+</View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          placeholderTextColor="#999"
-          onChangeText={setName}
-          value={name}
-        />
+<View style={styles.inputGroup}>
+  <View style={styles.inputWrapper}>
+    <MaterialIcons name="email" size={20} color="#999" style={styles.icon} />
+    <TextInput
+      style={styles.inputWithIcon}
+      placeholder="Email"
+      placeholderTextColor="#999"
+      onChangeText={setEmail}
+      value={email}
+      keyboardType="email-address"
+      autoCapitalize="none"
+    />
+  </View>
+  {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+</View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#999"
-          onChangeText={setEmail}
-          value={email}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+<View style={styles.inputGroup}>
+  <View style={styles.inputWrapper}>
+    <MaterialIcons name="lock" size={20} color="#999" style={styles.icon} />
+    <TextInput
+      style={styles.inputWithIcon}
+      placeholder="Password"
+      placeholderTextColor="#999"
+      onChangeText={setPassword}
+      value={password}
+      secureTextEntry={!showPassword}
+    />
+    <TouchableOpacity
+      style={styles.eyeIcon}
+      onPress={() => setShowPassword((prev) => !prev)}
+      accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+    >
+      <MaterialCommunityIcons
+        name={showPassword ? 'eye-off' : 'eye'}
+        size={22}
+        color="#999"
+      />
+    </TouchableOpacity>
+  </View>
+  {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+</View>
 
-        <View style={{ position: 'relative' }}>
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            onChangeText={setPassword}
-            value={password}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            style={styles.togglePassword}
-            onPress={() => setShowPassword((prev) => !prev)}
-            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-          >
-            <Text style={styles.togglePasswordText}>
-              {showPassword ? 'Hide' : 'Show'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {passwordError ? (
-          <Text style={styles.error}>{passwordError}</Text>
-        ) : null}
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+        {/* Animated login button */}
+        <Pressable
+  onPressIn={handlePressIn}
+  onPressOut={handlePressOut}
+  onPress={handleLogin}
+>
+  <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
+    <Text style={styles.buttonText}>Login</Text>
+    <View style={styles.iconCircle}>
+      <AntDesign name="arrowright" size={30} color="#0056D2" />
+    </View>
+  </Animated.View>
+</Pressable>
+
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
@@ -126,7 +169,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E6F0FF', // Light gray background
+    backgroundColor: '#F5FAFB',
   },
   inner: {
     flex: 1,
@@ -140,31 +183,62 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
   },
-  input: {
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+input: {
+  backgroundColor: '#fff',
+  borderColor: '#fff',
+  borderWidth: 1,
+  borderRadius: 15,
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  fontSize: 16,
+  marginBottom: 12,
+
+  // Shadow (iOS)
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+
+  // Shadow (Android)
+  elevation: 3,
+},
+
+inputGroup: {
+  marginBottom: 8,
+},
+
+inputWrapper: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  borderColor: '#fff',
+  borderWidth: 1,
+  borderRadius: 15,
+  paddingHorizontal: 12,
+  marginBottom: 12,
+
+  // Shadow (iOS)
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+
+  // Shadow (Android)
+  elevation: 3,
+},
+
+  icon: {
+    marginRight: 8,
+  },
+  inputWithIcon: {
+    flex: 1,
+    height: 50,
     fontSize: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 1,
+    color: '#333',
   },
-  togglePassword: {
+  eyeIcon: {
     position: 'absolute',
-    right: 16,
-    top: 18,
-    zIndex: 1,
-  },
-  togglePasswordText: {
-    color: '#4E5D78',
-    fontWeight: 'bold',
-    fontSize: 14,
+    right: 12,
   },
   error: {
     color: '#EA5455',
@@ -173,16 +247,31 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   button: {
-    backgroundColor: '#0056D2',
-    borderRadius: 10,
-    paddingVertical: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#0056D2',
+    borderRadius: 50,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
     marginTop: 16,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+     textAlign: 'center',
+  },
+  iconCircle: {
+    // marginLeft: 10,
+    // right:0,
+    backgroundColor: '#fff',
+    borderRadius: 999,
+    padding: 6,
+    position: 'relative',
+    left:120,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   footer: {
     marginTop: 32,
