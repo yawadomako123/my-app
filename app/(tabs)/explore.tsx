@@ -24,21 +24,21 @@ export type Course = {
 
 // You can map categories to colors/icons
 const categoryStyles: Record<string, { color: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  Design: { color: '#FFD6E0', icon: 'color-palette-outline' },
-  Development: { color: '#D0EBFF', icon: 'code-slash-outline' },
-  Business: { color: '#FFE6CC', icon: 'briefcase-outline' },
-  Data: { color: '#E5E5FF', icon: 'bar-chart-outline' },
+  Design: { color: '#E3C6FF', icon: 'color-palette-outline' },
+  Development: { color: '#B3DBFF', icon: 'code-slash-outline' },
+  Business: { color: '#FFD8A8', icon: 'briefcase-outline' },
+  Data: { color: '#A2EFD1', icon: 'bar-chart-outline' },
 };
 
 export const allCourses: Course[] = [
   { id: '1', title: 'UI/UX Design', category: 'Design' },
   { id: '2', title: 'Web Development', category: 'Development' },
-  { id: '3', title: 'Data Science', category: 'Data' },
-  { id: '4', title: 'Marketing', category: 'Business' },
-  { id: '5', title: 'Machine Learning', category: 'Data' },
-  { id: '6', title: 'Digital Marketing', category: 'Business' },
-  { id: '7', title: 'Mobile App Development', category: 'Development' },
-  { id: '8', title: 'Graphic Design', category: 'Design' },
+  { id: '3', title: 'Marketing', category: 'Business' },
+  { id: '4', title: 'Data Science', category: 'Data' },
+ { id: '5', title: 'Mobile App Development', category: 'Development' },
+   { id: '6', title: 'Graphic Design', category: 'Design' }, 
+ { id: '7', title: 'Digital Marketing', category: 'Business' },
+   { id: '8', title: 'Machine Learning', category: 'Data' },
   { id: '9', title: 'Python Programming', category: 'Development' },
   { id: '10', title: 'JavaScript', category: 'Development' },
   { id: '11', title: 'Business Analytics', category: 'Business' },
@@ -142,13 +142,13 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // Light Blue Background
+    backgroundColor: '#F9FAFB', // Light Blue Background
     paddingHorizontal: 20,
   },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 20,
     textAlign: 'center',
     color: Colors.light.primary,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   searchInput: {
     marginLeft: 10,
     flex: 1,
-    fontSize: 16,
+    fontSize: 16, 
     color: Colors.light.text,
   },
   courseList: {

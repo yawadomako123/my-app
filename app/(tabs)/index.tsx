@@ -13,24 +13,22 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Video } from 'expo-av';
 import { useAuth } from '../../contexts/AuthContext';
+import { Asset } from 'expo-asset';
 
-const Colors = {
-  light: {
-background: '#F8FAFC',
-  text: '#1c1c1e',
-  primary: '#0056D2',
-  border: '#e0e0e0',
-  accent: '#F97316',
-  muted: '#6B7280',
-  card: '#ffffff',
-  shadow: '#00000010',
-  surface: '#f2f2f2',
-  category: {
-    Technology: '#C7DFFF',
-    Business: '#FFF2E6',
-    Design: '#F6EDFF',
-    },
+export const Colors = {
+  bg: '#F9FAFB',
+  surface: '#F5F5F5',
+  primary: '#3366FF',
+  text: '#222222',
+  muted: '#777777',
+  card: '#FFFFFF',
+  shadow: '#00000010',
+  categoryBg: {
+    Technology: '#B3DBFF',
+    Business: '#FFD8A8',
+    Design: '#E3C6FF',
   },
 };
 
@@ -60,138 +58,111 @@ const courses = [
     id: '1',
     title: 'Introduction to Python',
     instructor: 'Dr. Jane Smith',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/python.jpg'),
     progress: 0.65,
-    category: 'Technology',
   },
   {
     id: '2',
     title: 'Machine Learning Fundamentals',
     instructor: 'Prof. John Doe',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/AI.jpg'),
     progress: 0.3,
-    category: 'Technology',
   },
   {
     id: '3',
     title: 'Web Development Bootcamp',
     instructor: 'Alex Johnson',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/web-development.jpg'),
     progress: 0.1,
-    category: 'Technology',
   },
 ];
 
-const mockRecentCourses = [
+const recentCourses = [
   { id: '4', title: 'UI/UX Design', category: 'Design' },
   { id: '5', title: 'Python Programming', category: 'Technology' },
   { id: '6', title: 'Business Analytics', category: 'Business' },
-  { id: '7', title: 'Mobile App Development', category: 'Technology' },
 ];
 
-function getGreeting() {
+// Video asset lookup
+const videoAssets: Record<string, any> = {
+  '4': require('../../assets/videos/ui-design.mp4'),
+  '5': require('../../assets/videos/python-programming.mp4'),
+  '6': require('../../assets/videos/business-analytics.mp4'),
+  default: require('../../assets/videos/default.mp4'),
+};
+
+const getVideoUri = (id: string): string => {
+  const source = videoAssets[id] || videoAssets.default;
+  return Asset.fromModule(source).uri;
+};
+
+const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
   if (hour < 18) return 'Good afternoon';
   return 'Good evening';
-}
+};
 
 export default function InterfaceScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const [recentCourses] = useState(mockRecentCourses);
   const [search, setSearch] = useState('');
   const avatarAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.spring(avatarAnim, {
       toValue: 1,
-      useNativeDriver: true,
       friction: 5,
+      useNativeDriver: true,
     }).start();
   }, []);
 
-  const handleCategorySelect = (category: typeof categories[0]) => {
-    router.push({
-      pathname: '/explore',
-      params: { search: category.search },
-    });
-  };
-
-  const handleCoursePress = (course: any) => {
-    router.push(`/courses/${course.id}`);
-  };
+  const navigateCourse = (id: string) => router.push(`/courses/${id}`);
+  const navigateExplore = (filter?: string) =>
+    router.push({ pathname: '/explore', params: filter ? { search: filter } : {} });
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity
-          style={styles.notificationIcon}
-          onPress={() => router.push('/notifications')}
-        >
-          <Ionicons name="notifications-outline" size={26} color={Colors.light.primary} />
+        <TouchableOpacity onPress={() => router.push('/notifications')}>
+          <Ionicons name="notifications-outline" size={26} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Header */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Animated.Image
-            source={{ uri: user?.profileImage || 'https://i.pravatar.cc/150?img=47' }}
-            style={[
-              styles.avatar,
-              {
-                transform: [
-                  {
-                    scale: avatarAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.7, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          />
           <Text style={styles.greeting}>
-            {getGreeting()}
-            {user?.name ? `, ${user.name}` : ''} 👋
+            {getGreeting()}, <Text style={styles.span}>{user?.name || 'Learner'} 👋</Text>
           </Text>
-          <Text style={styles.subtitle}>Start learning today!</Text>
+          <Text style={styles.subtitle}>Ready to learn?</Text>
         </View>
 
-        {/* Search */}
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color={Colors.light.muted} />
+          <Ionicons name="search-outline" size={20} color={Colors.muted} />
           <TextInput
-            placeholder="Search courses, topics, instructors"
-            placeholderTextColor={Colors.light.muted}
+            placeholder="Search courses..."
+            placeholderTextColor={Colors.muted}
             style={styles.searchInput}
             value={search}
             onChangeText={setSearch}
           />
         </View>
 
-        {/* Categories */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Categories</Text>
-            <TouchableOpacity onPress={() => router.push('/explore')}>
+            <TouchableOpacity onPress={() => navigateExplore()}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.categoriesGrid}>
+          <View style={styles.categoriesColumn}>
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat.name}
-                style={[
-                  styles.categoryCard,
-                  { backgroundColor: Colors.light.category[cat.name as keyof typeof Colors.light.category] },
-                ]}
-                onPress={() => handleCategorySelect(cat)}
-                activeOpacity={0.9}
+                style={[styles.categoryCard, { backgroundColor: Colors.categoryBg[cat.name] }]}
+                onPress={() => navigateExplore(cat.search)}
               >
-                <Ionicons name={cat.icon as any} size={26} color={Colors.light.primary} />
+                <Ionicons name={cat.icon as any} size={30} color={Colors.primary} />
                 <Text style={styles.categoryName}>{cat.name}</Text>
                 <Text style={styles.categoryDesc}>{cat.description}</Text>
               </TouchableOpacity>
@@ -199,32 +170,22 @@ export default function InterfaceScreen() {
           </View>
         </View>
 
-        {/* Continue Learning */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Continue Learning</Text>
-            <TouchableOpacity onPress={() => router.push('/explore')}>
+            <TouchableOpacity onPress={() => navigateExplore()}>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.continueLearningContainer}>
             {courses.map((course) => (
-              <TouchableOpacity
-                key={course.id}
-                style={styles.courseCard}
-                onPress={() => handleCoursePress(course)}
-                activeOpacity={0.9}
-              >
-                <Image source={{ uri: course.image }} style={styles.courseImage} />
+              <TouchableOpacity key={course.id} style={styles.courseCard} onPress={() => navigateCourse(course.id)}>
+                <Image source={course.image} style={styles.courseImage} />
                 <View style={styles.courseContent}>
-                  <Text style={styles.courseTitle} numberOfLines={2}>
-                    {course.title}
-                  </Text>
+                  <Text style={styles.courseTitle}>{course.title}</Text>
                   <Text style={styles.courseInstructor}>{course.instructor}</Text>
                   <View style={styles.progressBar}>
-                    <View
-                      style={[styles.progressFill, { width: `${course.progress * 100}%` }]}
-                    />
+                    <View style={[styles.progressFill, { width: `${course.progress * 100}%` }]} />
                   </View>
                   <Text style={styles.progressText}>{Math.round(course.progress * 100)}% complete</Text>
                 </View>
@@ -233,214 +194,128 @@ export default function InterfaceScreen() {
           </ScrollView>
         </View>
 
-        {/* Recently Viewed */}
-        {recentCourses.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recently Viewed</Text>
-              <TouchableOpacity onPress={() => router.push('/explore')}>
-                <Text style={styles.seeAll}>See All</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              horizontal
-              data={recentCourses}
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.recentList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.recentCard}
-                  onPress={() => handleCoursePress(item)}
-                  activeOpacity={0.9}
-                >
-                  <Ionicons name="play-circle-outline" size={26} color={Colors.light.primary} />
-                  <Text style={styles.recentTitle}>{item.title}</Text>
-                  <Text style={styles.recentCategory}>{item.category}</Text>
-                </TouchableOpacity>
-              )}
-            />
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recently Viewed</Text>
+            <TouchableOpacity onPress={() => navigateExplore()}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
           </View>
-        )}
+          <FlatList
+            horizontal
+            data={recentCourses}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.videoCard} onPress={() => navigateCourse(item.id)}>
+                <Video
+                  source={{ uri: getVideoUri(item.id) }}
+                  resizeMode="cover"
+                  shouldPlay
+                  isLooping
+                  isMuted
+                  style={styles.video}
+                />
+                <View style={styles.videoOverlay}>
+                  <Ionicons name="play-circle-outline" size={24} color="#fff" />
+                  <Text style={styles.videoTitle}>{item.title}</Text>
+                  <Text style={styles.videoCategory}>{item.category}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 16,
-  },
-  notificationIcon: {
-    padding: 6,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    borderColor: Colors.light.card,
-  },
-  greeting: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginTop: 10,
-    color: Colors.light.primary,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: Colors.light.muted,
-  },
+  container: { flex: 1, backgroundColor: Colors.bg },
+  topBar: { padding: 20, alignItems: 'flex-end', marginTop: 12 },
+  scrollContent: { padding: 20 },
+  header: { alignItems: 'center', marginBottom: 24 },
+  greeting: { fontSize: 22, fontWeight: '700', color: Colors.text },
+  subtitle: { fontSize: 15, color: Colors.muted },
+  span: { color: Colors.primary },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.surface,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  searchInput: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-    flex: 1,
-  },
-  section: {
-    marginTop:15,
-    marginBottom: 28,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.light.text,
-  },
-  seeAll: {
-    fontSize: 14,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  categoriesGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  categoryCard: {
-    width: '30%',
-    padding: 15,
+    backgroundColor: Colors.surface,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent:'center',
-    shadowColor: Colors.light.shadow,
-    shadowOffset: { width: 0, height: 1 },
+    marginBottom: 24,
+  },
+  searchInput: { marginLeft: 10, flex: 1, fontSize: 16, color: Colors.text },
+  section: { marginBottom: 28 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text },
+  seeAll: { fontSize: 14, fontWeight: '600', color: Colors.primary },
+  categoriesColumn: { flexDirection: 'column', gap: 20 },
+  categoryCard: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 2,
   },
-  categoryName: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 8,
-    color: Colors.light.primary,
-  },
-  categoryDesc: {
-    fontSize: 13,
-    textAlign: 'center',
-    marginTop: 4,
-    color: Colors.light.muted,
-  },
+  categoryName: { fontSize: 18, fontWeight: '700', color: Colors.text, marginTop: 8 },
+  categoryDesc: { fontSize: 14, marginTop: 5, color: Colors.muted },
+  continueLearningContainer: { paddingBottom: 20 },
   courseCard: {
-    width: 180,
-    backgroundColor: Colors.light.card,
+    width: 190,
+    backgroundColor: Colors.card,
     borderRadius: 12,
     marginRight: 16,
     overflow: 'hidden',
-    shadowColor: Colors.light.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
   },
-  courseImage: {
-    width: '100%',
-    height: 100,
-  },
-  courseContent: {
-    padding: 12,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.light.text,
-    marginBottom: 4,
-  },
-  courseInstructor: {
-    fontSize: 14,
-    color: Colors.light.muted,
-    marginBottom: 6,
-  },
+  courseImage: { width: '100%', height: 100 },
+  courseContent: { padding: 12 },
+  courseTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
+  courseInstructor: { fontSize: 14, color: Colors.muted, marginTop: 4 },
   progressBar: {
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: Colors.surface,
     borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 6,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.light.primary,
-  },
-  progressText: {
-    fontSize: 13,
-    color: Colors.light.muted,
-  },
-  recentList: {
-    paddingRight: 20,
-  },
-  recentCard: {
-    backgroundColor: '#F2F2F2',
-    padding: 14,
-    borderRadius: 10,
-    marginRight: 14,
-    width: 150,
-    alignItems: 'center',
-    shadowColor: Colors.light.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  recentTitle: {
-    fontSize: 16,
-    fontWeight: '700',
     marginTop: 8,
-    color: Colors.light.text,
-    textAlign: 'center',
   },
-  recentCategory: {
-    fontSize: 13,
-    color: Colors.light.muted,
-    marginTop: 4,
-    textAlign: 'center',
+  progressFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: 4 },
+  progressText: { fontSize: 13, color: Colors.muted, marginTop: 4 },
+  videoCard: {
+    width: 200,
+    height: 130,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginRight: 16,
+    backgroundColor: '#000',
+  },
+  video: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 12,
+  },
+  videoOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  videoTitle: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  videoCategory: {
+    color: '#eee',
+    fontSize: 12,
+    marginTop: 2,
   },
 });

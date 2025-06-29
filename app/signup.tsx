@@ -90,7 +90,7 @@ export default function SignUp() {
         <View style={styles.inputGroup}>
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder="User Name"
             placeholderTextColor="#999"
             onChangeText={setName}
             value={name}

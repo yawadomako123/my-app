@@ -434,7 +434,7 @@ export default function CareerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.light.background,
     padding: 16,
   },
   header: {
@@ -466,13 +466,13 @@ const styles = StyleSheet.create({
   filters: {
     paddingLeft: 16,
     paddingRight: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     height: '100%',
     flexDirection: 'row',
   },
   filterButton: {
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 16,
     borderRadius: 16,
     backgroundColor: '#F1F5F9',
@@ -499,20 +499,30 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     paddingBottom: 80,
-    paddingTop: 7,
+    paddingTop: 8,
+    
+
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
+card: {
+  backgroundColor: '#FFFFFF',
+  padding: 20,
+  borderRadius: 12,
+  marginBottom: 16,
+
+  // iOS Shadow
+  shadowColor: '#0056',
+  shadowOpacity: 0.08,       // increased for visibility
+  shadowRadius: 10,          // larger blur
+  shadowOffset: { width: 0, height: 4 },
+
+  // Android Shadow
+  elevation: 6,              // makes it pop on Android
+
+  // Optional border for subtle edge
+  borderWidth: 1,
+  borderColor: '#EEF2F6',    // softer than #F1F5F9
+},
+
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -543,7 +553,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 7,
+     borderWidth: 1,
+    borderColor: '#EEF2F6',
     alignSelf: 'flex-start',
     fontWeight: '500',
   },
