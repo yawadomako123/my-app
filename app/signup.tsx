@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '@/constants/Colors';
 
 export default function SignUp() {
   const router = useRouter();
@@ -26,6 +27,9 @@ export default function SignUp() {
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+   const [rememberMe, setRememberMe] = useState(false);
+
 
   const validateName = (name: string) => name.trim().length > 0;
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -140,6 +144,17 @@ export default function SignUp() {
           {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
         </View>
 
+        <View style={styles.rememberContainer}>
+  <TouchableOpacity
+    style={styles.checkbox}
+    onPress={() => setRememberMe(!rememberMe)}
+  >
+    {rememberMe && <View style={styles.checked} />}
+  </TouchableOpacity>
+  <Text style={styles.rememberText}>Remember me</Text>
+</View>
+
+
         <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handleSignUp}>
           <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
             <View style={styles.buttonContent}>
@@ -201,6 +216,38 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+
+  rememberContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 12,
+  marginBottom: 8,
+},
+
+checkbox: {
+  width: 20,
+  height: 20,
+  borderWidth: 1.5,
+  borderColor: Colors.light.primary,
+  borderRadius: 4,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 10,
+},
+
+checked: {
+  width: 12,
+  height: 12,
+  backgroundColor: Colors.light.primary,
+  borderRadius: 2,
+},
+
+rememberText: {
+  fontSize: 14,
+  color: '#333',
+},
+
+
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -211,7 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 12,
 
-    shadowColor: '#000',
+    shadowColor: '#0056',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

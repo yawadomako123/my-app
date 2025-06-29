@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text },
   seeAll: { fontSize: 14, fontWeight: '600', color: Colors.primary },
-  categoriesColumn: { flexDirection: 'column', gap: 20 },
+  categoriesColumn: { flexDirection: 'column', gap: 20,paddingBottom: 15 },
   categoryCard: {
     width: '100%',
     padding: 20,
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: '#0056',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 8,

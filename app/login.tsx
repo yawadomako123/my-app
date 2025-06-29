@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '@/constants/Colors';
 
 export default function Login() {
   const router = useRouter();
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#0056D2',
+    color: Colors.light.primary,
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -194,7 +195,7 @@ input: {
   marginBottom: 12,
 
   // Shadow (iOS)
-  shadowColor: '#000',
+  shadowColor: '#0056',
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.1,
   shadowRadius: 4,
