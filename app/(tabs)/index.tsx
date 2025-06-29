@@ -18,6 +18,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Asset } from 'expo-asset';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getThemeColors } from '../../constants/Colors';
+import { useColorScheme } from 'react-native'; // built-in hook
+
 
 const categories = [
   {
@@ -39,6 +41,17 @@ const categories = [
     search: 'Design',
   },
 ];
+export const categoryBg = {
+  Technology: '#B3DBFF',
+  Business: '#FFD8A8',
+  Design: '#E3C6FF',
+};
+
+export const categoryBgDark = {
+  Technology: '#235A9C', // Dark Blue
+  Business:   '#A6621B', // Dark Orange/Bronze
+  Design:     '#734C99', // Deep Purple
+};
 
 const courses = [
   {
@@ -105,6 +118,10 @@ export default function InterfaceScreen() {
     }).start();
   }, []);
 
+  const isInDarkMode = useColorScheme() === 'dark';
+const activeCategoryBg = isInDarkMode ? categoryBgDark : categoryBg;
+
+
   const navigateCourse = (id: string) => router.push(`/courses/${id}`);
   const navigateExplore = (filter?: string) =>
     router.push({ pathname: '/explore', params: filter ? { search: filter } : {} });
@@ -137,26 +154,32 @@ export default function InterfaceScreen() {
         </View>
 
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Categories</Text>
-            <TouchableOpacity onPress={() => navigateExplore()}>
-              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.categoriesColumn}>
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.name}
-                style={[styles.categoryCard, { backgroundColor: Colors.primarySoft }]}
-                onPress={() => navigateExplore(cat.search)}
-              >
-                <Ionicons name={cat.icon as any} size={30} color={Colors.primary} />
-                <Text style={[styles.categoryName, { color: Colors.text }]}>{cat.name}</Text>
-                <Text style={[styles.categoryDesc, { color: Colors.muted }]}>{cat.description}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+  <View style={styles.sectionHeader}>
+    <Text style={[styles.sectionTitle, { color: Colors.text }]}>Categories</Text>
+    <TouchableOpacity onPress={() => navigateExplore()}>
+      <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
+    </TouchableOpacity>
+  </View>
+  
+     <View style={styles.categoriesColumn}>
+      {categories.map((cat) => {
+        const bgColor = Colors.categoryBg[cat.name] ?? Colors.surface;
+
+        return (
+          <TouchableOpacity
+            key={cat.name}
+            style={[styles.categoryCard, { backgroundColor: bgColor }]}
+            onPress={() => navigateExplore(cat.search)}
+          >
+            <Ionicons name={cat.icon as any} size={30} color={Colors.primary} />
+            <Text style={[styles.categoryName, { color: Colors.text }]}>{cat.name}</Text>
+            <Text style={[styles.categoryDesc, { color: Colors.muted }]}>{cat.description}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+</View>
+
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -169,10 +192,10 @@ export default function InterfaceScreen() {
             {courses.map((course) => (
               <TouchableOpacity key={course.id} style={[styles.courseCard, { backgroundColor: Colors.card }]} onPress={() => navigateCourse(course.id)}>
                 <Image source={course.image} style={styles.courseImage} />
-                <View style={styles.courseContent}>
+                <View style={[styles.courseContent, {backgroundColor: Colors.surface}]}>
                   <Text style={[styles.courseTitle, { color: Colors.text }]}>{course.title}</Text>
                   <Text style={[styles.courseInstructor, { color: Colors.muted }]}>{course.instructor}</Text>
-                  <View style={[styles.progressBar, { backgroundColor: Colors.surface }]}>
+                  <View style={[styles.progressBar, { backgroundColor: '#F2F2F2' }]}>
                     <View style={[styles.progressFill, { backgroundColor: Colors.primary, width: `${course.progress * 100}%` }]} />
                   </View>
                   <Text style={[styles.progressText, { color: Colors.muted }]}>{Math.round(course.progress * 100)}% complete</Text>
@@ -252,7 +275,7 @@ const styles = StyleSheet.create({
   categoryDesc: { fontSize: 14, marginTop: 5 },
   continueLearningContainer: { paddingBottom: 20 },
   courseCard: {
-    width: 190,
+      width: 190,
     borderRadius: 12,
     marginRight: 16,
     overflow: 'hidden',
@@ -261,9 +284,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  courseImage: { width: '100%', height: 100 },
-  courseContent: { padding: 12 },
-  courseTitle: { fontSize: 16, fontWeight: '700' },
+courseImage: { width: '100%', height: 100 },
+  courseContent: { padding: 20,  },
+  courseTitle: { fontSize: 16, fontWeight: '700', },
   courseInstructor: { fontSize: 14, marginTop: 4 },
   progressBar: {
     height: 4,

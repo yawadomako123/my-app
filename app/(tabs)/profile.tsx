@@ -19,9 +19,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { getThemeColors } from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
+import ag from '../../assets/images/avatar-placeholder.jpeg'
 
 
-const profile = () => {
+const Profile = () => {
 
   const { isDarkMode } = useTheme();
 const colors = getThemeColors(isDarkMode);
@@ -100,26 +101,45 @@ const socialLinks = [
     <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.header}>
         <View style={styles.avatarAccent}>
-          <Animated.View
-            style={{
-              transform: [{ scale: avatarAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }],
-              shadowColor: colors.primary,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.18,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
-          >
-            <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
-              <Animated.Image source={{ uri: profileImage! }} style={styles.avatar} />
-              {isEditing && (
-                <View style={[styles.cameraIconWrapper, { backgroundColor: colors.primary }]}>
-                  <Ionicons name="camera" size={18} color="#fff" />
-                </View>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
+  <Animated.View
+    style={[
+      {
+        transform: [
+          {
+            scale: avatarAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.9, 1],
+            }),
+          },
+        ],
+        elevation: 10,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+      },
+    ]}
+  >
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={pickImage}
+      style={styles.avatarTouchable}
+    >
+      <Animated.Image
+        source={profileImage ? { uri: profileImage } : require('../../assets/images/avatar-placeholder.jpeg')}
+        style={styles.avatar}
+        resizeMode="cover"
+      />
+
+      {isEditing && (
+        <View style={[styles.cameraIconWrapper, { backgroundColor: colors.primarySoft }]}>
+          <Ionicons name="camera" size={18} color="#fff" />
         </View>
+      )}
+    </TouchableOpacity>
+  </Animated.View>
+</View>
+
 
         <Text style={[styles.name, { color: colors.text }]}>{user?.name || 'Guest User'}</Text>
         <Text style={[styles.email, { color: colors.muted }]}>{user?.email || 'guest@example.com'}</Text>
@@ -170,21 +190,21 @@ const socialLinks = [
         <Text style={[styles.cardTitle, { color: colors.text, marginBottom: 10 }]}>Course Progress</Text>
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { backgroundColor: colors.primary, width: `${completedPercent * 100}%` }]} />
-          <View style={[styles.progressBarFill, { backgroundColor: colors.accent, width: `${inProgressPercent * 100}%` }]} />
+          <View style={[styles.progressBarFill, { backgroundColor: colors.surface, width: `${inProgressPercent * 100}%` }]} />
         </View>
         <View style={styles.progressLabels}>
           <Text style={[styles.progressLabel, { color: colors.primary }]}>Completed: {progressData.completedCourses}</Text>
-          <Text style={[styles.progressLabel, { color: colors.accent }]}>In Progress: {progressData.inProgressCourses}</Text>
+          <Text style={[styles.progressLabel, { color: colors.primarySoft }]}>In Progress: {progressData.inProgressCourses}</Text>
         </View>
       </View>
 
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: colors.tag }]}>
+        <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
           <Ionicons name="checkmark-circle-outline" size={26} color={colors.text} />
           <Text style={[styles.statValue, { color: colors.text }]}>{progressData.completedCourses}</Text>
           <Text style={[styles.statLabel, { color: colors.muted }]}>Completed</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: colors.tag }]}>
+        <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
           <Ionicons name="time-outline" size={26} color={colors.text} />
           <Text style={[styles.statValue, { color: colors.text }]}>{progressData.inProgressCourses}</Text>
           <Text style={[styles.statLabel, { color: colors.muted }]}>In Progress</Text>
@@ -197,7 +217,7 @@ const socialLinks = [
         <Text style={[styles.cardTitle, { color: colors.text }]}>Skills</Text>
         <View style={styles.tagsContainer}>
           {progressData.skills.map((skill, i) => (
-            <View key={i} style={[styles.tag, { backgroundColor: colors.tag }]}>
+            <View key={i} style={[styles.tag, { backgroundColor: colors.surface }]}>
               <Text style={[styles.tagText, { color: colors.primary }]}>{skill}</Text>
             </View>
           ))}
@@ -208,7 +228,7 @@ const socialLinks = [
         <Text style={[styles.cardTitle, { color: colors.text }]}>Recently Viewed</Text>
         {progressData.recentCourses.map((course, i) => (
           <View key={i} style={styles.recent}>
-            <Ionicons name="book-outline" size={18} color={colors.accent} />
+            <Ionicons name="book-outline" size={18} color={colors.primarySoft} />
             <Text style={[styles.recentText, { color: colors.text }]}>{course}</Text>
           </View>
         ))}
@@ -307,13 +327,13 @@ const socialLinks = [
             size={70}
             width={8}
             fill={inProgressPercent * 100}
-            tintColor={colors.accent}
+            tintColor={colors.primarySoft}
             backgroundColor={colors.border}
             rotation={0}
             lineCap="round"
           >
             {() => (
-              <Text style={{ fontWeight: 'bold', color: colors.accent, fontSize: 16 }}>
+              <Text style={{ fontWeight: 'bold', color: colors.primarySoft, fontSize: 16 }}>
                 {progressData.inProgressCourses}
               </Text>
             )}
@@ -328,7 +348,7 @@ const socialLinks = [
           {progressData.skills.map((skill, i) => (
             <TouchableOpacity
               key={i}
-              style={[styles.tag, { backgroundColor: colors.tag }]}
+              style={[styles.tag, { backgroundColor: colors.surface }]}
               onPress={() => setShowSkillInfo(skill)}
               activeOpacity={0.7}
             >
@@ -350,7 +370,7 @@ const socialLinks = [
         </View>
       )}
 
-      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <View style={[styles.card, { backgroundColor: colors.surface}]}>
         <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Activity</Text>
         <View style={styles.timeline}>
           <View style={styles.timelineDot} />
@@ -371,7 +391,7 @@ const socialLinks = [
   )
 }
 
-export default profile
+export default Profile
 
 const styles = StyleSheet.create({
   container: {
@@ -385,25 +405,42 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   avatarAccent: {
-    backgroundColor: 'transparent',
-    borderRadius: 100,
-    padding: 4,
-    marginBottom: 10,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  cameraIconWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderRadius: 999,
-    padding: 6,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 24,
+},
+
+avatarTouchable: {
+  width: 120,
+  height: 120,
+  borderRadius: 60,
+  overflow: 'hidden',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#2c2c2e',
+  position: 'relative',
+},
+
+avatar: {
+  width: '100%',
+  height: '100%',
+  borderRadius: 60,
+},
+
+cameraIconWrapper: {
+  position: 'absolute',
+  bottom: 4,
+  right: 4,
+  backgroundColor: '#3366FF',
+  borderRadius: 20,
+  padding: 6,
+  elevation: 4,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+},
+
   name: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -626,5 +663,6 @@ const styles = StyleSheet.create({
   },
   timelineText: {
     fontSize: 13,
+    color:'#fff',
   },
 });

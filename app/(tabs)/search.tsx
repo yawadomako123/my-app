@@ -84,8 +84,8 @@ const Search = () => {
       style={[styles.topicBadge, { backgroundColor: Colors.primarySoft }]}
       activeOpacity={0.8}
     >
-      <Ionicons name="book-outline" size={16} color={Colors.primary} style={{ marginRight: 6 }} />
-      <Text style={[styles.topicText, { color: Colors.primary }]}>{text}</Text>
+      <Ionicons name="book-outline" size={16} color={Colors.text} style={{ marginRight: 6 }} />
+      <Text style={[styles.topicText, { color: Colors.text }]}>{text}</Text>
     </TouchableOpacity>
   );
 
@@ -142,7 +142,7 @@ const Search = () => {
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: Colors.text }]}>Popular Topics</Text>
           </View>
-          <View style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
+          <View  style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -24,8 +24,8 @@ export type Course = {
 
 const categoryStyles: Record<string, { color: string; icon: keyof typeof Ionicons.glyphMap }> = {
   Design: { color: '#E3C6FF', icon: 'color-palette-outline' },
-  Development: { color: '#B3DBFF', icon: 'code-slash-outline' },
-  Business: { color: '#FFD8A8', icon: 'briefcase-outline' },
+  Development: { color: '#A5CFFF', icon: 'code-slash-outline' },
+  Business: { color: '#FFD6A5', icon: 'briefcase-outline' },
   Data: { color: '#A2EFD1', icon: 'bar-chart-outline' },
 };
 
@@ -124,7 +124,7 @@ export default function ExploreScreen() {
                     onPress={() => handleCoursePress(item)}
                   >
                     <View style={styles.iconWrapper}>
-                      <Ionicons name={icon} size={30} color={Colors.text} />
+                      <Ionicons name={icon} size={30} color={Colors.primary} />
                     </View>
                     <Text style={[styles.courseTitle, { color: Colors.text }]}>{item.title}</Text>
                     <Text style={[styles.courseCategory, { color: Colors.muted }]}>{item.category}</Text>
