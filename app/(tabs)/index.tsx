@@ -16,21 +16,8 @@ import {
 import { Video } from 'expo-av';
 import { useAuth } from '../../contexts/AuthContext';
 import { Asset } from 'expo-asset';
-
-export const Colors = {
-  bg: '#F9FAFB',
-  surface: '#F5F5F5',
-  primary: '#3366FF',
-  text: '#222222',
-  muted: '#777777',
-  card: '#FFFFFF',
-  shadow: '#00000010',
-  categoryBg: {
-    Technology: '#B3DBFF',
-    Business: '#FFD8A8',
-    Design: '#E3C6FF',
-  },
-};
+import { useTheme } from '../../contexts/ThemeContext';
+import { getThemeColors } from '../../constants/Colors';
 
 const categories = [
   {
@@ -83,7 +70,6 @@ const recentCourses = [
   { id: '6', title: 'Business Analytics', category: 'Business' },
 ];
 
-// Video asset lookup
 const videoAssets: Record<string, any> = {
   '4': require('../../assets/videos/ui-design.mp4'),
   '5': require('../../assets/videos/python-programming.mp4'),
@@ -106,6 +92,8 @@ const getGreeting = () => {
 export default function InterfaceScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
+  const Colors = getThemeColors(isDarkMode);
   const [search, setSearch] = useState('');
   const avatarAnim = useRef(new Animated.Value(0)).current;
 
@@ -122,7 +110,7 @@ export default function InterfaceScreen() {
     router.push({ pathname: '/explore', params: filter ? { search: filter } : {} });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.push('/notifications')}>
           <Ionicons name="notifications-outline" size={26} color={Colors.primary} />
@@ -131,18 +119,18 @@ export default function InterfaceScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>
-            {getGreeting()}, <Text style={styles.span}>{user?.name || 'Learner'} 👋</Text>
+          <Text style={[styles.greeting, { color: Colors.text }]}> 
+            {getGreeting()}, <Text style={{ color: Colors.primary }}>{user?.name || 'Learner'} 👋</Text>
           </Text>
-          <Text style={styles.subtitle}>Ready to learn?</Text>
+          <Text style={[styles.subtitle, { color: Colors.muted }]}>Ready to learn?</Text>
         </View>
 
-        <View style={styles.searchBar}>
+        <View style={[styles.searchBar, { backgroundColor: Colors.surface }]}>
           <Ionicons name="search-outline" size={20} color={Colors.muted} />
           <TextInput
             placeholder="Search courses..."
             placeholderTextColor={Colors.muted}
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: Colors.text }]}
             value={search}
             onChangeText={setSearch}
           />
@@ -150,21 +138,21 @@ export default function InterfaceScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Categories</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Categories</Text>
             <TouchableOpacity onPress={() => navigateExplore()}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.categoriesColumn}>
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat.name}
-                style={[styles.categoryCard, { backgroundColor: Colors.categoryBg[cat.name] }]}
+                style={[styles.categoryCard, { backgroundColor: Colors.primarySoft }]}
                 onPress={() => navigateExplore(cat.search)}
               >
                 <Ionicons name={cat.icon as any} size={30} color={Colors.primary} />
-                <Text style={styles.categoryName}>{cat.name}</Text>
-                <Text style={styles.categoryDesc}>{cat.description}</Text>
+                <Text style={[styles.categoryName, { color: Colors.text }]}>{cat.name}</Text>
+                <Text style={[styles.categoryDesc, { color: Colors.muted }]}>{cat.description}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -172,22 +160,22 @@ export default function InterfaceScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Continue Learning</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Continue Learning</Text>
             <TouchableOpacity onPress={() => navigateExplore()}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.continueLearningContainer}>
             {courses.map((course) => (
-              <TouchableOpacity key={course.id} style={styles.courseCard} onPress={() => navigateCourse(course.id)}>
+              <TouchableOpacity key={course.id} style={[styles.courseCard, { backgroundColor: Colors.card }]} onPress={() => navigateCourse(course.id)}>
                 <Image source={course.image} style={styles.courseImage} />
                 <View style={styles.courseContent}>
-                  <Text style={styles.courseTitle}>{course.title}</Text>
-                  <Text style={styles.courseInstructor}>{course.instructor}</Text>
-                  <View style={styles.progressBar}>
-                    <View style={[styles.progressFill, { width: `${course.progress * 100}%` }]} />
+                  <Text style={[styles.courseTitle, { color: Colors.text }]}>{course.title}</Text>
+                  <Text style={[styles.courseInstructor, { color: Colors.muted }]}>{course.instructor}</Text>
+                  <View style={[styles.progressBar, { backgroundColor: Colors.surface }]}>
+                    <View style={[styles.progressFill, { backgroundColor: Colors.primary, width: `${course.progress * 100}%` }]} />
                   </View>
-                  <Text style={styles.progressText}>{Math.round(course.progress * 100)}% complete</Text>
+                  <Text style={[styles.progressText, { color: Colors.muted }]}>{Math.round(course.progress * 100)}% complete</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -196,9 +184,9 @@ export default function InterfaceScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recently Viewed</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Recently Viewed</Text>
             <TouchableOpacity onPress={() => navigateExplore()}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
             </TouchableOpacity>
           </View>
           <FlatList
@@ -231,48 +219,43 @@ export default function InterfaceScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
+  container: { flex: 1 },
   topBar: { padding: 20, alignItems: 'flex-end', marginTop: 12 },
   scrollContent: { padding: 20 },
   header: { alignItems: 'center', marginBottom: 24 },
-  greeting: { fontSize: 22, fontWeight: '700', color: Colors.text },
-  subtitle: { fontSize: 15, color: Colors.muted },
-  span: { color: Colors.primary },
+  greeting: { fontSize: 22, fontWeight: '700' },
+  subtitle: { fontSize: 15 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 24,
   },
-  searchInput: { marginLeft: 10, flex: 1, fontSize: 16, color: Colors.text },
+  searchInput: { marginLeft: 10, flex: 1, fontSize: 16 },
   section: { marginBottom: 28 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text },
-  seeAll: { fontSize: 14, fontWeight: '600', color: Colors.primary },
-  categoriesColumn: { flexDirection: 'column', gap: 20,paddingBottom: 15 },
+  sectionTitle: { fontSize: 18, fontWeight: '700' },
+  seeAll: { fontSize: 14, fontWeight: '600' },
+  categoriesColumn: { flexDirection: 'column', gap: 20, paddingBottom: 15 },
   categoryCard: {
     width: '100%',
     padding: 20,
     borderRadius: 15,
-    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 2,
   },
-  categoryName: { fontSize: 18, fontWeight: '700', color: Colors.text, marginTop: 8 },
-  categoryDesc: { fontSize: 14, marginTop: 5, color: Colors.muted },
+  categoryName: { fontSize: 18, fontWeight: '700', marginTop: 8 },
+  categoryDesc: { fontSize: 14, marginTop: 5 },
   continueLearningContainer: { paddingBottom: 20 },
   courseCard: {
     width: 190,
-    backgroundColor: Colors.card,
     borderRadius: 12,
     marginRight: 16,
     overflow: 'hidden',
-    shadowColor: '#0056',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -280,16 +263,15 @@ const styles = StyleSheet.create({
   },
   courseImage: { width: '100%', height: 100 },
   courseContent: { padding: 12 },
-  courseTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  courseInstructor: { fontSize: 14, color: Colors.muted, marginTop: 4 },
+  courseTitle: { fontSize: 16, fontWeight: '700' },
+  courseInstructor: { fontSize: 14, marginTop: 4 },
   progressBar: {
     height: 4,
-    backgroundColor: Colors.surface,
     borderRadius: 4,
     marginTop: 8,
   },
-  progressFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: 4 },
-  progressText: { fontSize: 13, color: Colors.muted, marginTop: 4 },
+  progressFill: { height: '100%', borderRadius: 4 },
+  progressText: { fontSize: 13, marginTop: 4 },
   videoCard: {
     width: 200,
     height: 130,

@@ -1,156 +1,159 @@
+// app/search.tsx
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
-} from 'react-native'
-import React, { useState } from 'react'
-import { Ionicons } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { allCourses, Course } from './explore' 
-import { Colors } from '@/constants/Colors'
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getThemeColors } from '@/constants/Colors';
+import { allCourses, Course } from './explore';
 
 const popularSearches = [
-   'UX Design', 'Startup Jobs',
+  'UX Design', 'Startup Jobs',
   'Cyber Security', 'Web Development', 'Data Analysis',
   'Game Development', 'Mobile App Development',
   'Cloud Computing', 'Product Management',
-]
+];
 
 const Search = () => {
-  const [query, setQuery] = useState('')
-  const [recentSearches, setRecentSearches] = useState<string[]>([])
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([])
+  const { isDarkMode } = useTheme();
+  const Colors = getThemeColors(isDarkMode);
+
+  const [query, setQuery] = useState('');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
 
   const filterCourses = (text: string) => {
     const filtered = allCourses.filter(course =>
       course.title.toLowerCase().includes(text.toLowerCase()) ||
       course.category.toLowerCase().includes(text.toLowerCase())
-    )
-    setFilteredCourses(filtered)
-  }
+    );
+    setFilteredCourses(filtered);
+  };
 
   const handleSearch = () => {
-    const trimmed = query.trim()
-    if (!trimmed) return
-    const updated = [trimmed, ...recentSearches.filter(item => item !== trimmed)]
-    setRecentSearches(updated.slice(0, 5))
-    filterCourses(trimmed)
-    setQuery('')
-  }
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    const updated = [trimmed, ...recentSearches.filter(item => item !== trimmed)];
+    setRecentSearches(updated.slice(0, 5));
+    filterCourses(trimmed);
+    setQuery('');
+  };
 
-  const clearRecent = () => setRecentSearches([])
+  const clearRecent = () => setRecentSearches([]);
 
   const removeRecentItem = (item: string) =>
-    setRecentSearches(recentSearches.filter(i => i !== item))
+    setRecentSearches(recentSearches.filter(i => i !== item));
 
   const renderRecentItem = (text: string) => (
-    <View key={text} style={styles.recentItem}>
+    <View key={text} style={[styles.recentItem, { borderColor: Colors.surface }]}>
       <TouchableOpacity
         onPress={() => {
-          setQuery(text)
-          filterCourses(text)
+          setQuery(text);
+          filterCourses(text);
         }}
         style={styles.recentItemTextWrapper}
         activeOpacity={0.7}
       >
-        <Ionicons name="time-outline" size={20} color="#6b7280" style={{ marginRight: 12 }} />
-        <Text style={styles.recentItemText}>{text}</Text>
+        <Ionicons name="time-outline" size={20} color={Colors.muted} style={{ marginRight: 12 }} />
+        <Text style={[styles.recentItemText, { color: Colors.text }]}>{text}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => removeRecentItem(text)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         style={styles.closeIconWrapper}
       >
-        <Ionicons name="close-circle" size={22} color="#ef4444" />
+        <Ionicons name="close-circle" size={22} color={Colors.primary} />
       </TouchableOpacity>
     </View>
-  )
+  );
 
   const renderPopularItem = (text: string) => (
     <TouchableOpacity
       key={text}
       onPress={() => {
-        setQuery(text)
-        filterCourses(text)
+        setQuery(text);
+        filterCourses(text);
       }}
-      style={styles.topicBadge}
+      style={[styles.topicBadge, { backgroundColor: Colors.primarySoft }]}
       activeOpacity={0.8}
     >
-      <Ionicons name="book-outline" size={16} color="#2563eb" style={{ marginRight: 6 }} />
-      <Text style={styles.topicText}>{text}</Text>
+      <Ionicons name="book-outline" size={16} color={Colors.primary} style={{ marginRight: 6 }} />
+      <Text style={[styles.topicText, { color: Colors.primary }]}>{text}</Text>
     </TouchableOpacity>
-  )
+  );
 
   return (
-    <SafeAreaView style={styles.wrapper}>
-      {/* Search Bar */}
+    <SafeAreaView style={[styles.wrapper, { backgroundColor: Colors.background }]}>
       <View style={styles.searchBarWrapper}>
         <TextInput
           placeholder="What do you want to learn?"
           value={query}
           onChangeText={(text) => {
-            setQuery(text)
-            filterCourses(text)
+            setQuery(text);
+            filterCourses(text);
           }}
           onSubmitEditing={handleSearch}
-          style={styles.input}
+          style={[styles.input, { backgroundColor: Colors.surface, color: Colors.text }]}
+          placeholderTextColor={Colors.muted}
           returnKeyType="search"
           clearButtonMode="while-editing"
         />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Search Results (only while typing) */}
         {query.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Search Results</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Search Results</Text>
             {filteredCourses.length === 0 ? (
-              <Text style={{ color: Colors.light.text, marginTop: 10 }}>No courses found.</Text>
+              <Text style={{ color: Colors.muted, marginTop: 10 }}>No courses found.</Text>
             ) : (
               filteredCourses.map(course => (
-                <View key={course.id} style={styles.resultItem}>
-                  <Text style={styles.resultTitle}>{course.title}</Text>
-                  <Text style={styles.resultCategory}>{course.category}</Text>
+                <View key={course.id} style={[styles.resultItem, { borderColor: Colors.surface }]}>
+                  <Text style={[styles.resultTitle, { color: Colors.text }]}>{course.title}</Text>
+                  <Text style={[styles.resultCategory, { color: Colors.muted }]}>{course.category}</Text>
                 </View>
               ))
             )}
           </View>
         )}
 
-        {/* Recent Searches */}
         {recentSearches.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Searches</Text>
+              <Text style={[styles.sectionTitle, { color: Colors.text }]}>Recent Searches</Text>
               <TouchableOpacity onPress={clearRecent} activeOpacity={0.7}>
-                <Text style={styles.clearButton}>Clear All</Text>
+                <Text style={[styles.clearButton, { color: Colors.primary }]}>Clear All</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.recentList}>{recentSearches.map(renderRecentItem)}</View>
+            <View style={[styles.recentList, { backgroundColor: Colors.surface }]}>
+              {recentSearches.map(renderRecentItem)}
+            </View>
           </View>
         )}
 
-        {/* Popular Topics */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Topics</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Popular Topics</Text>
           </View>
           <View style={styles.topicsContainer}>{popularSearches.map(renderPopularItem)}</View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: Colors.light.background,
     paddingTop: 20,
   },
   searchBarWrapper: {
@@ -159,11 +162,9 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 52,
-    backgroundColor: Colors.light.surface,
     borderRadius: 12,
     paddingHorizontal: 18,
     fontSize: 17,
-    color: Colors.light.text,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -182,21 +183,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    margin:20,
-    marginBottom: 20,
+    marginHorizontal: 4,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.light.text,
   },
   clearButton: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ef4444',
   },
   recentList: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -211,7 +209,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderColor: '#e5e7eb',
   },
   recentItemTextWrapper: {
     flexDirection: 'row',
@@ -220,7 +217,6 @@ const styles = StyleSheet.create({
   },
   recentItemText: {
     fontSize: 16,
-    color: '#374151',
   },
   closeIconWrapper: {
     paddingLeft: 16,
@@ -233,7 +229,6 @@ const styles = StyleSheet.create({
   topicBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0f2fe',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -242,21 +237,17 @@ const styles = StyleSheet.create({
   },
   topicText: {
     fontSize: 15,
-    color: '#2563eb',
     fontWeight: '600',
   },
   resultItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: '#e5e7eb',
   },
   resultTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
   },
   resultCategory: {
     fontSize: 14,
-    color: '#6b7280',
   },
-})
+});

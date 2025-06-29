@@ -1,5 +1,4 @@
 // app/explore.tsx
-import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -14,15 +13,15 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getThemeColors } from '@/constants/Colors';
 
-// Define a type for courses
 export type Course = {
   id: string;
   title: string;
   category: string;
 };
 
-// You can map categories to colors/icons
 const categoryStyles: Record<string, { color: string; icon: keyof typeof Ionicons.glyphMap }> = {
   Design: { color: '#E3C6FF', icon: 'color-palette-outline' },
   Development: { color: '#B3DBFF', icon: 'code-slash-outline' },
@@ -35,10 +34,10 @@ export const allCourses: Course[] = [
   { id: '2', title: 'Web Development', category: 'Development' },
   { id: '3', title: 'Marketing', category: 'Business' },
   { id: '4', title: 'Data Science', category: 'Data' },
- { id: '5', title: 'Mobile App Development', category: 'Development' },
-   { id: '6', title: 'Graphic Design', category: 'Design' }, 
- { id: '7', title: 'Digital Marketing', category: 'Business' },
-   { id: '8', title: 'Machine Learning', category: 'Data' },
+  { id: '5', title: 'Mobile App Development', category: 'Development' },
+  { id: '6', title: 'Graphic Design', category: 'Design' },
+  { id: '7', title: 'Digital Marketing', category: 'Business' },
+  { id: '8', title: 'Machine Learning', category: 'Data' },
   { id: '9', title: 'Python Programming', category: 'Development' },
   { id: '10', title: 'JavaScript', category: 'Development' },
   { id: '11', title: 'Business Analytics', category: 'Business' },
@@ -46,7 +45,7 @@ export const allCourses: Course[] = [
   { id: '13', title: 'Cybersecurity', category: 'Development' },
   { id: '14', title: 'Cloud Computing', category: 'Development' },
   { id: '15', title: 'Digital Illustration', category: 'Design' },
-  { id: '16', title: 'Public Adminstration', category: 'Business'}
+  { id: '16', title: 'Public Adminstration', category: 'Business' },
 ];
 
 export default function ExploreScreen() {
@@ -54,6 +53,9 @@ export default function ExploreScreen() {
   const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCourses, setFilteredCourses] = useState<Course[]>(allCourses);
+
+  const { isDarkMode } = useTheme();
+  const Colors = getThemeColors(isDarkMode);
 
   useEffect(() => {
     if (params.search) {
@@ -84,27 +86,25 @@ export default function ExploreScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.header}>🎓 Explore Courses</Text>
+          <Text style={[styles.header, { color: Colors.primary }]}>🎓 Explore Courses</Text>
 
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color="#888" />
+          <View style={[styles.searchContainer, { backgroundColor: Colors.surface }]}>
+            <Ionicons name="search-outline" size={20} color={Colors.muted} />
             <TextInput
               placeholder="Search by title or category"
-              placeholderTextColor="#888"
-              style={styles.searchInput}
+              placeholderTextColor={Colors.muted}
+              style={[styles.searchInput, { color: Colors.text }]}
               value={searchQuery}
               onChangeText={handleSearch}
               returnKeyType="search"
             />
           </View>
 
-          {/* Course Grid */}
           {filteredCourses.length === 0 ? (
-            <Text style={styles.emptyMessage}>No courses found.</Text>
+            <Text style={[styles.emptyMessage, { color: Colors.muted }]}>No courses found.</Text>
           ) : (
             <FlatList
               data={filteredCourses}
@@ -115,7 +115,7 @@ export default function ExploreScreen() {
               keyboardShouldPersistTaps="handled"
               renderItem={({ item }) => {
                 const { color, icon } = categoryStyles[item.category] || {
-                  color: '#EEE',
+                  color: Colors.surface,
                   icon: 'school-outline',
                 };
                 return (
@@ -124,10 +124,10 @@ export default function ExploreScreen() {
                     onPress={() => handleCoursePress(item)}
                   >
                     <View style={styles.iconWrapper}>
-                      <Ionicons name={icon} size={30} color="#333" />
+                      <Ionicons name={icon} size={30} color={Colors.text} />
                     </View>
-                    <Text style={styles.courseTitle}>{item.title}</Text>
-                    <Text style={styles.courseCategory}>{item.category}</Text>
+                    <Text style={[styles.courseTitle, { color: Colors.text }]}>{item.title}</Text>
+                    <Text style={[styles.courseCategory, { color: Colors.muted }]}>{item.category}</Text>
                   </TouchableOpacity>
                 );
               }}
@@ -142,7 +142,6 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB', // Light Blue Background
     paddingHorizontal: 20,
   },
   header: {
@@ -151,12 +150,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     textAlign: 'center',
-    color: Colors.light.primary,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor:Colors.light.surface ,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -166,8 +163,7 @@ const styles = StyleSheet.create({
   searchInput: {
     marginLeft: 10,
     flex: 1,
-    fontSize: 16, 
-    color: Colors.light.text,
+    fontSize: 16,
   },
   courseList: {
     paddingBottom: 100,
@@ -175,7 +171,6 @@ const styles = StyleSheet.create({
   courseRow: {
     justifyContent: 'space-between',
     marginBottom: 20,
-    
   },
   courseCard: {
     width: '48%',
@@ -200,18 +195,15 @@ const styles = StyleSheet.create({
   courseTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center',
     marginBottom: 5,
   },
   courseCategory: {
     fontSize: 13,
-    color: '#555',
     textAlign: 'center',
   },
   emptyMessage: {
     textAlign: 'center',
-    color: '#888',
     fontSize: 16,
     marginTop: 30,
   },
