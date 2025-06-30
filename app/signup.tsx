@@ -1,43 +1,40 @@
+import { Colors } from '@/constants/Colors';
+import { AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
   Alert,
+  Animated,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  View,
-  Animated,
-  Pressable,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '@/constants/Colors';
 
 export default function SignUp() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { signup } = useAuth(); // <-- Use signup, not login
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-   const [rememberMe, setRememberMe] = useState(false);
-
+  const [rememberMe, setRememberMe] = useState(false);
 
   const validateName = (name: string) => name.trim().length > 0;
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 8;
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     let valid = true;
 
     if (!validateName(name)) {
@@ -62,24 +59,22 @@ export default function SignUp() {
     }
 
     if (valid) {
-      login(email, name);
-      router.replace({
-        pathname: '/(tabs)',
-        params: { name, email },
-      });
+      try {
+        const success = await signup(name, email, password);
+        if (success) {
+          Alert.alert('Success', 'Account created. Please log in.');
+          router.replace('/login');
+        } else {
+          Alert.alert('Signup Failed', 'Something went wrong.');
+        }
+      } catch (err) {
+        Alert.alert('Network Error', 'Could not connect to backend.');
+      }
     }
   };
 
-      if (response.ok) {
-        Alert.alert('Success', 'Account created. Please log in.');
-        router.replace('/login');
-      } else {
-        const data = await response.text();
-        Alert.alert('Signup Failed', data || 'Something went wrong.');
-      }
-    } catch (err) {
-      Alert.alert('Network Error', 'Could not connect to backend.');
-    }
+  const handleLoginRedirect = () => {
+    router.replace('/login');
   };
 
   // Button animation
@@ -155,15 +150,14 @@ export default function SignUp() {
         </View>
 
         <View style={styles.rememberContainer}>
-  <TouchableOpacity
-    style={styles.checkbox}
-    onPress={() => setRememberMe(!rememberMe)}
-  >
-    {rememberMe && <View style={styles.checked} />}
-  </TouchableOpacity>
-  <Text style={styles.rememberText}>Remember me</Text>
-</View>
-
+          <TouchableOpacity
+            style={styles.checkbox}
+            onPress={() => setRememberMe(!rememberMe)}
+          >
+            {rememberMe && <View style={styles.checked} />}
+          </TouchableOpacity>
+          <Text style={styles.rememberText}>Remember me</Text>
+        </View>
 
         <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handleSignUp}>
           <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
@@ -228,35 +222,34 @@ const styles = StyleSheet.create({
   },
 
   rememberContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginTop: 12,
-  marginBottom: 8,
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
 
-checkbox: {
-  width: 20,
-  height: 20,
-  borderWidth: 1.5,
-  borderColor: Colors.light.primary,
-  borderRadius: 4,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 10,
-},
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1.5,
+    borderColor: Colors.light.primary,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
 
-checked: {
-  width: 12,
-  height: 12,
-  backgroundColor: Colors.light.primary,
-  borderRadius: 2,
-},
+  checked: {
+    width: 12,
+    height: 12,
+    backgroundColor: Colors.light.primary,
+    borderRadius: 2,
+  },
 
-rememberText: {
-  fontSize: 14,
-  color: '#333',
-},
-
+  rememberText: {
+    fontSize: 14,
+    color: '#333',
+  },
 
   inputWrapper: {
     flexDirection: 'row',

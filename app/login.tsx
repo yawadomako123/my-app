@@ -1,24 +1,21 @@
+import { Colors } from '@/constants/Colors';
+import { AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
   Alert,
+  Animated,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  View,
-  Animated,
-  Pressable,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '@/constants/Colors';
-
-// ✅ Replace with your IP if testing on physical device
-const API_BASE_URL = 'http://10.30.22.122:9091/api/auth';
 
 export default function Login() {
   const router = useRouter();
@@ -27,14 +24,15 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const { login } = useAuth();
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [name, setName] = useState('');
 
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 8;
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     let valid = true;
 
     if (!validateEmail(email)) {
@@ -52,29 +50,25 @@ export default function Login() {
     }
 
     if (valid) {
-      login(email, name);
-      router.replace({
-        pathname: '/(tabs)',
-        params: { name, email },
-      });
+      try {
+        const success = await login(email, password);
+        if (success) {
+          router.replace({
+            pathname: '/(tabs)',
+            params: { email },
+          });
+        } else {
+          Alert.alert('Login Failed', 'Invalid credentials');
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        Alert.alert('Error', 'Could not connect to backend.');
+      }
     }
   };
 
-      if (response.ok) {
-        const data = await response.json();
-        login(data.email, data.name); // Sets context
-        router.replace({
-          pathname: '/(tabs)',
-          params: { email: data.email, name: data.name },
-        });
-      } else {
-        const errorText = await response.text();
-        Alert.alert('Login Failed', errorText || 'Invalid credentials');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      Alert.alert('Error', 'Could not connect to backend.');
-    }
+  const goToSignUp = () => {
+    router.replace('/signup');
   };
 
   // Animation logic
@@ -102,73 +96,71 @@ export default function Login() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Text style={styles.title}>Welcome Back</Text>
-<View style={styles.inputGroup}>
-  <TextInput
-    style={styles.input}
-    placeholder="User Name"
-    placeholderTextColor="#999"
-    onChangeText={setName}
-    value={name}
-  />
-</View>
+        <View style={styles.inputGroup}>
+          <TextInput
+            style={styles.input}
+            placeholder="User Name"
+            placeholderTextColor="#999"
+            onChangeText={setName}
+            value={name}
+          />
+        </View>
 
-<View style={styles.inputGroup}>
-  <View style={styles.inputWrapper}>
-    <MaterialIcons name="email" size={20} color="#999" style={styles.icon} />
-    <TextInput
-      style={styles.inputWithIcon}
-      placeholder="Email"
-      placeholderTextColor="#999"
-      onChangeText={setEmail}
-      value={email}
-      keyboardType="email-address"
-      autoCapitalize="none"
-    />
-  </View>
-  {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
-</View>
+        <View style={styles.inputGroup}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="email" size={20} color="#999" style={styles.icon} />
+            <TextInput
+              style={styles.inputWithIcon}
+              placeholder="Email"
+              placeholderTextColor="#999"
+              onChangeText={setEmail}
+              value={email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+        </View>
 
-<View style={styles.inputGroup}>
-  <View style={styles.inputWrapper}>
-    <MaterialIcons name="lock" size={20} color="#999" style={styles.icon} />
-    <TextInput
-      style={styles.inputWithIcon}
-      placeholder="Password"
-      placeholderTextColor="#999"
-      onChangeText={setPassword}
-      value={password}
-      secureTextEntry={!showPassword}
-    />
-    <TouchableOpacity
-      style={styles.eyeIcon}
-      onPress={() => setShowPassword((prev) => !prev)}
-      accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-    >
-      <MaterialCommunityIcons
-        name={showPassword ? 'eye-off' : 'eye'}
-        size={22}
-        color="#999"
-      />
-    </TouchableOpacity>
-  </View>
-  {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
-</View>
-
+        <View style={styles.inputGroup}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="lock" size={20} color="#999" style={styles.icon} />
+            <TextInput
+              style={styles.inputWithIcon}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              onChangeText={setPassword}
+              value={password}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setShowPassword((prev) => !prev)}
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <MaterialCommunityIcons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={22}
+                color="#999"
+              />
+            </TouchableOpacity>
+          </View>
+          {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+        </View>
 
         {/* Animated login button */}
         <Pressable
-  onPressIn={handlePressIn}
-  onPressOut={handlePressOut}
-  onPress={handleLogin}
->
-  <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
-    <Text style={styles.buttonText}>Login</Text>
-    <View style={styles.iconCircle}>
-      <AntDesign name="arrowright" size={30} color="#0056D2" />
-    </View>
-  </Animated.View>
-</Pressable>
-
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={handleLogin}
+        >
+          <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
+            <Text style={styles.buttonText}>Login</Text>
+            <View style={styles.iconCircle}>
+              <AntDesign name="arrowright" size={30} color="#0056D2" />
+            </View>
+          </Animated.View>
+        </Pressable>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
@@ -200,49 +192,49 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
   },
-input: {
-  backgroundColor: '#fff',
-  borderColor: '#fff',
-  borderWidth: 1,
-  borderRadius: 15,
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-  fontSize: 16,
-  marginBottom: 12,
+  input: {
+    backgroundColor: '#fff',
+    borderColor: '#fff',
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    marginBottom: 12,
 
-  // Shadow (iOS)
-  shadowColor: '#0056',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
+    // Shadow (iOS)
+    shadowColor: '#0056',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
 
-  // Shadow (Android)
-  elevation: 3,
-},
+    // Shadow (Android)
+    elevation: 3,
+  },
 
-inputGroup: {
-  marginBottom: 8,
-},
+  inputGroup: {
+    marginBottom: 8,
+  },
 
-inputWrapper: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  borderColor: '#fff',
-  borderWidth: 1,
-  borderRadius: 15,
-  paddingHorizontal: 12,
-  marginBottom: 12,
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderColor: '#fff',
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    marginBottom: 12,
 
-  // Shadow (iOS)
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
+    // Shadow (iOS)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
 
-  // Shadow (Android)
-  elevation: 3,
-},
+    // Shadow (Android)
+    elevation: 3,
+  },
 
   icon: {
     marginRight: 8,
@@ -273,20 +265,17 @@ inputWrapper: {
     paddingHorizontal: 24,
     marginTop: 16,
   },
-  buttonText: {
+buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-     textAlign: 'center',
+    flex: 1,
+    textAlign: 'center',
   },
-  iconCircle: {
-    // marginLeft: 10,
-    // right:0,
+   iconCircle: {
     backgroundColor: '#fff',
     borderRadius: 999,
     padding: 6,
-    position: 'relative',
-    left:120,
     alignItems: 'center',
     justifyContent: 'center',
   },
