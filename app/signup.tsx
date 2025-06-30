@@ -12,6 +12,9 @@ import {
   TouchableOpacity
 } from 'react-native';
 
+// ✅ Use your local IP if testing on device over Wi-Fi
+const API_BASE_URL = 'http://10.30.22.122:9091/api/auth';  // Update this IP if needed
+
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -25,29 +28,33 @@ export default function Signup() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/users/signup', {
+      const response = await fetch(`${API_BASE_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
 
-      if (res.ok) {
+      if (response.ok) {
         Alert.alert('Success', 'Account created. Please log in.');
         router.replace('/login');
       } else {
-        const message = await res.text();
-        Alert.alert('Signup Failed', message || 'Something went wrong');
+        const data = await response.text();
+        Alert.alert('Signup Failed', data || 'Something went wrong.');
       }
     } catch (err) {
-      Alert.alert('Error', 'Could not connect to the server.');
+      Alert.alert('Network Error', 'Could not connect to backend.');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={['#4facfe', '#00f2fe']} style={styles.gradient}>
-        <KeyboardAvoidingView style={styles.inner} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView
+          style={styles.inner}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <Text style={styles.title}>Create Account</Text>
+
           <TextInput
             style={styles.input}
             placeholder="Full Name"

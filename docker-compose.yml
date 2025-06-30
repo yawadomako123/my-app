@@ -16,7 +16,7 @@ services:
     build: ./user-service
     container_name: user-service
     ports:
-      - "8081:8080"
+      - "9091:8081"  # EXTERNAL:INTERNAL
     depends_on:
       - user-db
     environment:

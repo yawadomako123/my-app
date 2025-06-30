@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
+// ✅ Replace with your IP if testing on physical device
+const API_BASE_URL = 'http://10.30.22.122:9091/api/auth';
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,22 +30,26 @@ export default function Login() {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/users/login', {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        login(data.email, data.name);
-        router.replace({ pathname: '/(tabs)', params: { email: data.email, name: data.name } });
+      if (response.ok) {
+        const data = await response.json();
+        login(data.email, data.name); // Sets context
+        router.replace({
+          pathname: '/(tabs)',
+          params: { email: data.email, name: data.name },
+        });
       } else {
-        const message = await res.text();
-        Alert.alert('Login Failed', message || 'Invalid credentials');
+        const errorText = await response.text();
+        Alert.alert('Login Failed', errorText || 'Invalid credentials');
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to connect to the server.');
+      console.error('Login error:', err);
+      Alert.alert('Error', 'Could not connect to backend.');
     }
   };
 
@@ -51,6 +58,7 @@ export default function Login() {
       <LinearGradient colors={['#4facfe', '#00f2fe']} style={styles.gradient}>
         <KeyboardAvoidingView style={styles.inner} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Text style={styles.title}>Login</Text>
+
           <TextInput
             style={styles.input}
             placeholder="Email"
