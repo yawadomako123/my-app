@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -14,20 +13,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Video } from 'expo-av';
 import { useAuth } from '../../contexts/AuthContext';
+import { Asset } from 'expo-asset';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getThemeColors } from '../../constants/Colors';
+import { useColorScheme } from 'react-native'; // built-in hook
 
-const Colors = {
-  light: {
-    background: '#fff',
-    text: '#1c1c1e',
-    primary: '#0056D2',
-    border: '#e0e0e0',
-    accent: '#F97316',
-    muted: '#6B7280',
-    card: '#FFFFFF',
-    shadow: '#00000020',
-  },
-};
 
 const categories = [
   {
@@ -35,430 +27,300 @@ const categories = [
     description: 'Code, build, and master the future.',
     icon: 'code-slash-outline',
     search: 'Development',
-    color: '#D0EBFF',
   },
   {
     name: 'Business',
     description: 'Marketing, leadership, and strategy.',
     icon: 'briefcase-outline',
     search: 'Business',
-    color: '#FFE6CC',
   },
   {
     name: 'Design',
     description: 'UI, UX, and creative skills.',
     icon: 'color-palette-outline',
     search: 'Design',
-    color: '#EEDFFF',
   },
 ];
+export const categoryBg = {
+  Technology: '#B3DBFF',
+  Business: '#FFD8A8',
+  Design: '#E3C6FF',
+};
+
+export const categoryBgDark = {
+  Technology: '#235A9C', // Dark Blue
+  Business:   '#A6621B', // Dark Orange/Bronze
+  Design:     '#734C99', // Deep Purple
+};
 
 const courses = [
   {
     id: '1',
     title: 'Introduction to Python',
     instructor: 'Dr. Jane Smith',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/python.jpg'),
     progress: 0.65,
-    category: 'Technology',
   },
   {
     id: '2',
     title: 'Machine Learning Fundamentals',
     instructor: 'Prof. John Doe',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/AI.jpg'),
     progress: 0.3,
-    category: 'Technology',
   },
   {
     id: '3',
     title: 'Web Development Bootcamp',
     instructor: 'Alex Johnson',
-    image: 'https://via.placeholder.com/150',
+    image: require('../../assets/images/web-development.jpg'),
     progress: 0.1,
-    category: 'Technology',
   },
 ];
 
-const mockRecentCourses = [
+const recentCourses = [
   { id: '4', title: 'UI/UX Design', category: 'Design' },
   { id: '5', title: 'Python Programming', category: 'Technology' },
-  { id: '6', title: 'Business Analytics', category: 'Business' }, // Added
-  { id: '7', title: 'Mobile App Development', category: 'Technology' }, // Added
+  { id: '6', title: 'Business Analytics', category: 'Business' },
 ];
 
-function getGreeting() {
+const videoAssets: Record<string, any> = {
+  '4': require('../../assets/videos/ui-design.mp4'),
+  '5': require('../../assets/videos/python-programming.mp4'),
+  '6': require('../../assets/videos/business-analytics.mp4'),
+  default: require('../../assets/videos/default.mp4'),
+};
+
+const getVideoUri = (id: string): string => {
+  const source = videoAssets[id] || videoAssets.default;
+  return Asset.fromModule(source).uri;
+};
+
+const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
   if (hour < 18) return 'Good afternoon';
   return 'Good evening';
-}
+};
 
 export default function InterfaceScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const [recentCourses] = useState(mockRecentCourses);
+  const { isDarkMode } = useTheme();
+  const Colors = getThemeColors(isDarkMode);
   const [search, setSearch] = useState('');
   const avatarAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.spring(avatarAnim, {
       toValue: 1,
-      useNativeDriver: true,
       friction: 5,
+      useNativeDriver: true,
     }).start();
   }, []);
 
-  const handleCategorySelect = (category: typeof categories[0]) => {
-    router.push({
-      pathname: '/explore',
-      params: { search: category.search },
-    });
-  };
+  const isInDarkMode = useColorScheme() === 'dark';
+const activeCategoryBg = isInDarkMode ? categoryBgDark : categoryBg;
 
-  const handleCoursePress = (course: any) => {
-    router.push(`/courses/${course.id}`);
-  };
+
+  const navigateCourse = (id: string) => router.push(`/courses/${id}`);
+  const navigateExplore = (filter?: string) =>
+    router.push({ pathname: '/explore', params: filter ? { search: filter } : {} });
 
   return (
-    <LinearGradient
-      colors={['#e0e7ff', '#fff']}
-      style={styles.linearGradient}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-    >
-      <SafeAreaView style={styles.container}>
-        {/* Top Bar */}
-        <View style={styles.topBar}>
-          
-          <TouchableOpacity
-            style={styles.notificationIcon}
-            onPress={() => router.push('/notifications')}
-          >
-            <Ionicons name="notifications-outline" size={28} color={Colors.light.primary} />
-          </TouchableOpacity>
+    <SafeAreaView style={[styles.container, { backgroundColor: Colors.background }]}>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => router.push('/notifications')}>
+          <Ionicons name="notifications-outline" size={26} color={Colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={[styles.greeting, { color: Colors.text }]}> 
+            {getGreeting()}, <Text style={{ color: Colors.primary }}>{user?.name || 'Learner'} 👋</Text>
+          </Text>
+          <Text style={[styles.subtitle, { color: Colors.muted }]}>Ready to learn?</Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          {/* Header */}
-          <View style={styles.header}>
-            <Animated.Image
-              source={{ uri: user?.profileImage || 'https://i.pravatar.cc/150?img=47' }}
-              style={[
-                styles.avatar,
-                {
-                  transform: [
-                    {
-                      scale: avatarAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.7, 1],
-                      }),
-                    },
-                  ],
-                  shadowColor: Colors.light.shadow,
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 6,
-                  elevation: 6,
-                },
-              ]}
-            />
-            <Text style={styles.greeting}>
-              {getGreeting()}
-              {user?.name ? `, ${user.name}` : ''} 👋
-            </Text>
-            <Text style={styles.subtitle}>Start learning today!</Text>
-          </View>
+        <View style={[styles.searchBar, { backgroundColor: Colors.surface }]}>
+          <Ionicons name="search-outline" size={20} color={Colors.muted} />
+          <TextInput
+            placeholder="Search courses..."
+            placeholderTextColor={Colors.muted}
+            style={[styles.searchInput, { color: Colors.text }]}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
 
-          {/* Search Bar */}
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={20} color={Colors.light.muted} />
-            <TextInput
-              placeholder="Search for courses, topics, or instructors"
-              value={search}
-              onChangeText={setSearch}
-              style={styles.searchInput}
-              placeholderTextColor={Colors.light.muted}
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-            />
-          </View>
+        <View style={styles.section}>
+  <View style={styles.sectionHeader}>
+    <Text style={[styles.sectionTitle, { color: Colors.text }]}>Categories</Text>
+    <TouchableOpacity onPress={() => navigateExplore()}>
+      <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
+    </TouchableOpacity>
+  </View>
+  
+     <View style={styles.categoriesColumn}>
+      {categories.map((cat) => {
+        const bgColor = Colors.categoryBg[cat.name] ?? Colors.surface;
 
-          {/* Categories Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Explore by Category</Text>
-              <TouchableOpacity onPress={() => router.push('/explore')}>
-                <Text style={styles.seeAll}>See All</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.categoryContainer}>
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat.name}
-                  style={[styles.categoryCard, { backgroundColor: cat.color }]}
-                  onPress={() => handleCategorySelect(cat)}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name={cat.icon as any} size={30} color={Colors.light.primary} />
-                  <Text style={styles.categoryName}>{cat.name}</Text>
-                  <Text style={styles.categoryDesc}>{cat.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+        return (
+          <TouchableOpacity
+            key={cat.name}
+            style={[styles.categoryCard, { backgroundColor: bgColor }]}
+            onPress={() => navigateExplore(cat.search)}
+          >
+            <Ionicons name={cat.icon as any} size={30} color={Colors.primary} />
+            <Text style={[styles.categoryName, { color: Colors.text }]}>{cat.name}</Text>
+            <Text style={[styles.categoryDesc, { color: Colors.muted }]}>{cat.description}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+</View>
 
-          {/* Continue Learning Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Continue Learning</Text>
-              <TouchableOpacity onPress={() => router.push('/explore')}>
-                <Text style={styles.seeAll}>See All</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {courses.map((course) => (
-                <TouchableOpacity
-                  key={course.id}
-                  style={styles.courseCard}
-                  onPress={() => handleCoursePress(course)}
-                  activeOpacity={0.85}
-                >
-                  <Image source={{ uri: course.image }} style={styles.courseImage} />
-                  <View style={styles.courseInfo}>
-                    <Text style={styles.courseTitle} numberOfLines={2}>
-                      {course.title}
-                    </Text>
-                    <Text style={styles.courseInstructor}>{course.instructor}</Text>
-                    <View style={styles.progressBar}>
-                      <View
-                        style={[styles.progressFill, { width: `${course.progress * 100}%` }]}
-                      />
-                    </View>
-                    <Text style={styles.progressText}>{Math.round(course.progress * 100)}% complete</Text>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Continue Learning</Text>
+            <TouchableOpacity onPress={() => navigateExplore()}>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.continueLearningContainer}>
+            {courses.map((course) => (
+              <TouchableOpacity key={course.id} style={[styles.courseCard, { backgroundColor: Colors.card }]} onPress={() => navigateCourse(course.id)}>
+                <Image source={course.image} style={styles.courseImage} />
+                <View style={[styles.courseContent, {backgroundColor: Colors.surface}]}>
+                  <Text style={[styles.courseTitle, { color: Colors.text }]}>{course.title}</Text>
+                  <Text style={[styles.courseInstructor, { color: Colors.muted }]}>{course.instructor}</Text>
+                  <View style={[styles.progressBar, { backgroundColor: '#F2F2F2' }]}>
+                    <View style={[styles.progressFill, { backgroundColor: Colors.primary, width: `${course.progress * 100}%` }]} />
                   </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+                  <Text style={[styles.progressText, { color: Colors.muted }]}>{Math.round(course.progress * 100)}% complete</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-          {/* Recently Viewed Section */}
-          {recentCourses.length > 0 && (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Recently Viewed</Text>
-                <TouchableOpacity onPress={() => router.push('/explore')}>
-                  <Text style={styles.seeAll}>See All</Text>
-                </TouchableOpacity>
-              </View>
-              <FlatList
-                horizontal
-                data={recentCourses}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.recentList}
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.recentCard}
-                    onPress={() => handleCoursePress(item)}
-                    activeOpacity={0.85}
-                  >
-                    <Ionicons name="play-circle-outline" size={26} color={Colors.light.primary} />
-                    <Text style={styles.recentTitle}>{item.title}</Text>
-                    <Text style={styles.recentCategory}>{item.category}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: Colors.text }]}>Recently Viewed</Text>
+            <TouchableOpacity onPress={() => navigateExplore()}>
+              <Text style={[styles.seeAll, { color: Colors.primary }]}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            horizontal
+            data={recentCourses}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.videoCard} onPress={() => navigateCourse(item.id)}>
+                <Video
+                  source={{ uri: getVideoUri(item.id) }}
+                  resizeMode="cover"
+                  shouldPlay
+                  isLooping
+                  isMuted
+                  style={styles.video}
+                />
+                <View style={styles.videoOverlay}>
+                  <Ionicons name="play-circle-outline" size={24} color="#fff" />
+                  <Text style={styles.videoTitle}>{item.title}</Text>
+                  <Text style={styles.videoCategory}>{item.category}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    paddingTop: 30,
-    backgroundColor: 'transparent',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  notificationIcon: {
-    marginLeft: 18,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 22,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    borderColor: '#fff',
-    backgroundColor: '#e0e7ff',
-  },
-  greeting: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: Colors.light.primary,
-    marginTop: 10,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.light.muted,
-    textAlign: 'center',
-  },
+  container: { flex: 1 },
+  topBar: { padding: 20, alignItems: 'flex-end', marginTop: 12 },
+  scrollContent: { padding: 20 },
+  header: { alignItems: 'center', marginBottom: 24 },
+  greeting: { fontSize: 22, fontWeight: '700' },
+  subtitle: { fontSize: 15 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 18,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  section: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     marginBottom: 24,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.light.text,
-  },
-  seeAll: {
-    fontSize: 14,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  categoryContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
+  searchInput: { marginLeft: 10, flex: 1, fontSize: 16 },
+  section: { marginBottom: 28 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  sectionTitle: { fontSize: 18, fontWeight: '700' },
+  seeAll: { fontSize: 14, fontWeight: '600' },
+  categoriesColumn: { flexDirection: 'column', gap: 20, paddingBottom: 15 },
   categoryCard: {
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    width: '31%',
-    alignItems: 'center',
-    shadowColor: Colors.light.shadow,
+    width: '100%',
+    padding: 20,
+    borderRadius: 15,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  categoryName: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginTop: 10,
-    color: Colors.light.primary,
-  },
-  categoryDesc: {
-    fontSize: 14,
-    color: Colors.light.muted,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  courseCard: {
-    width: 180,
-    marginRight: 16,
-    backgroundColor: Colors.light.card,
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: Colors.light.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.13,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  courseImage: {
-    width: '100%',
-    height: 100,
-  },
-  courseInfo: {
-    padding: 12,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.light.text,
-    marginBottom: 4,
-  },
-  courseInstructor: {
-    fontSize: 14,
-    color: Colors.light.muted,
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.light.primary,
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 14,
-    color: Colors.light.muted,
-  },
-  recentList: {
-    paddingRight: 20,
-  },
-  recentCard: {
-    backgroundColor: '#F2F2F2',
-    padding: 16,
-    borderRadius: 10,
-    marginRight: 12,
-    width: 150,
-    alignItems: 'center',
-    shadowColor: Colors.light.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
     shadowRadius: 4,
     elevation: 2,
   },
-  recentTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 6,
-    color: Colors.light.text,
+  categoryName: { fontSize: 18, fontWeight: '700', marginTop: 8 },
+  categoryDesc: { fontSize: 14, marginTop: 5 },
+  continueLearningContainer: { paddingBottom: 20 },
+  courseCard: {
+      width: 190,
+    borderRadius: 12,
+    marginRight: 16,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  recentCategory: {
-    fontSize: 13,
-    color: Colors.light.muted,
+courseImage: { width: '100%', height: 100 },
+  courseContent: { padding: 20,  },
+  courseTitle: { fontSize: 16, fontWeight: '700', },
+  courseInstructor: { fontSize: 14, marginTop: 4 },
+  progressBar: {
+    height: 4,
+    borderRadius: 4,
+    marginTop: 8,
+  },
+  progressFill: { height: '100%', borderRadius: 4 },
+  progressText: { fontSize: 13, marginTop: 4 },
+  videoCard: {
+    width: 200,
+    height: 130,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginRight: 16,
+    backgroundColor: '#000',
+  },
+  video: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 12,
+  },
+  videoOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  videoTitle: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  videoCategory: {
+    color: '#eee',
+    fontSize: 12,
     marginTop: 2,
   },
 });
