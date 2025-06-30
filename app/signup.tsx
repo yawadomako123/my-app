@@ -2,144 +2,86 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
 
-export default function SignUp() {
-  const [name, setName] = useState('');
+export default function Signup() {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
 
-  const validateName = (name: string) => name.trim().length > 0;
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (password: string) => password.length >= 8;
-
-  const handleSignUp = () => {
-    let isValid = true;
-
-    if (!validateName(name)) {
-      setNameError('Please enter your full name');
-      isValid = false;
-    } else {
-      setNameError('');
+  const handleSignup = async () => {
+    if (!email || !name || !password) {
+      Alert.alert('Error', 'All fields are required');
+      return;
     }
 
-    if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
-      isValid = false;
-    } else {
-      setEmailError('');
-    }
-
-    if (!validatePassword(password)) {
-      setPasswordError('Password must be at least 8 characters long');
-      isValid = false;
-    } else {
-      setPasswordError('');
-    }
-
-    if (isValid) {
-      // Log in the user and navigate to the main app
-      login(email, name);
-      router.replace({
-        pathname: '/(tabs)',
-        params: { name, email },
+    try {
+      const res = await fetch('http://localhost:8080/api/users/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
       });
-      
-    }
-  };
 
-  const handleLoginRedirect = () => {
-    router.push('/login');
+      if (res.ok) {
+        Alert.alert('Success', 'Account created. Please log in.');
+        router.replace('/login');
+      } else {
+        const message = await res.text();
+        Alert.alert('Signup Failed', message || 'Something went wrong');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Could not connect to the server.');
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#ff758c', '#ff7eb3']} style={styles.gradientBackground}>
-        <KeyboardAvoidingView
-          style={styles.inner}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+      <LinearGradient colors={['#4facfe', '#00f2fe']} style={styles.gradient}>
+        <KeyboardAvoidingView style={styles.inner} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Text style={styles.title}>Create Account</Text>
-
           <TextInput
             style={styles.input}
             placeholder="Full Name"
-            placeholderTextColor="#999"
             onChangeText={setName}
             value={name}
-            autoCapitalize="words"
           />
-          {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
-
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#999"
             onChangeText={setEmail}
             value={email}
-            keyboardType="email-address"
             autoCapitalize="none"
+            keyboardType="email-address"
           />
-          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            onChangeText={setPassword}
+            value={password}
+            secureTextEntry
+          />
 
-          <View style={{ position: 'relative' }}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#999"
-              onChangeText={setPassword}
-              value={password}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 18,
-                zIndex: 1,
-              }}
-              onPress={() => setShowPassword((prev) => !prev)}
-              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
-            >
-              <Text style={{ color: '#888', fontWeight: 'bold', fontSize: 14 }}>
-                {showPassword ? 'Hide' : 'Show'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
-
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <LinearGradient
-              colors={['#43e97b', '#38f9d7']}
-              style={styles.buttonGradient}
-            >
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <LinearGradient colors={['#43e97b', '#38f9d7']} style={styles.buttonGradient}>
               <Text style={styles.buttonText}>Sign Up</Text>
             </LinearGradient>
           </TouchableOpacity>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Already have an account?{' '}
-              <Text style={styles.link} onPress={handleLoginRedirect}>
-                Login
-              </Text>
+          <Text style={styles.footerText}>
+            Already have an account?{' '}
+            <Text onPress={() => router.push('/login')} style={styles.link}>
+              Login
             </Text>
-          </View>
+          </Text>
         </KeyboardAvoidingView>
       </LinearGradient>
     </SafeAreaView>
@@ -147,81 +89,19 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradientBackground: {
-    flex: 1,
-    paddingTop: 50,
-    paddingBottom: 50,
-    justifyContent: 'center',
-  },
-  inner: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
+  container: { flex: 1 },
+  gradient: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
+  inner: { justifyContent: 'center' },
+  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 32, color: '#fff' },
   input: {
     backgroundColor: '#fff',
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
+    padding: 14,
+    borderRadius: 10,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
   },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 16,
-    top: 12,
-  },
-  error: {
-    color: '#ff4d4f',
-    fontSize: 13,
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  button: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 12,
-  },
-  buttonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderRadius: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  footer: {
-    marginTop: 32,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#fff',
-  },
-  link: {
-    fontWeight: 'bold',
-    color: '#ffd700',
-  },
+  button: { borderRadius: 10, overflow: 'hidden', marginTop: 10 },
+  buttonGradient: { padding: 16, alignItems: 'center' },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  footerText: { color: '#fff', textAlign: 'center', marginTop: 20 },
+  link: { color: '#ffd700', fontWeight: 'bold' },
 });
