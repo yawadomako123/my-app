@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -22,6 +23,7 @@ export default function SignUp() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [nameError, setNameError] = useState('');
@@ -68,8 +70,16 @@ export default function SignUp() {
     }
   };
 
-  const handleLoginRedirect = () => {
-    router.push('/login');
+      if (response.ok) {
+        Alert.alert('Success', 'Account created. Please log in.');
+        router.replace('/login');
+      } else {
+        const data = await response.text();
+        Alert.alert('Signup Failed', data || 'Something went wrong.');
+      }
+    } catch (err) {
+      Alert.alert('Network Error', 'Could not connect to backend.');
+    }
   };
 
   // Button animation

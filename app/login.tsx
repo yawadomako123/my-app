@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -16,16 +17,18 @@ import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-i
 import { useAuth } from '../contexts/AuthContext';
 import { Colors } from '@/constants/Colors';
 
+// ✅ Replace with your IP if testing on physical device
+const API_BASE_URL = 'http://10.30.22.122:9091/api/auth';
+
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const router = useRouter();
+  const { login } = useAuth();
 
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -57,8 +60,21 @@ export default function Login() {
     }
   };
 
-  const goToSignUp = () => {
-    router.push('/signup');
+      if (response.ok) {
+        const data = await response.json();
+        login(data.email, data.name); // Sets context
+        router.replace({
+          pathname: '/(tabs)',
+          params: { email: data.email, name: data.name },
+        });
+      } else {
+        const errorText = await response.text();
+        Alert.alert('Login Failed', errorText || 'Invalid credentials');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      Alert.alert('Error', 'Could not connect to backend.');
+    }
   };
 
   // Animation logic
