@@ -17,7 +17,7 @@ import {
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
-import { getThemeColors } from '@/constants/Colors';
+import { Colors, getThemeColors } from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
 import ag from '../../assets/images/avatar-placeholder.jpeg'
 
@@ -663,6 +663,6 @@ cameraIconWrapper: {
   },
   timelineText: {
     fontSize: 13,
-    color:'#fff',
+    color:Colors.light.text,
   },
 });
