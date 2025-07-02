@@ -1,29 +1,25 @@
+// app/_layout.tsx
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
+// Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      SplashScreen.hideAsync();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Stack screenOptions={{
-          headerShown: false,
-          animation: 'fade',
-          contentStyle: {
-            backgroundColor: 'transparent', // Let pages define their own background
-          },
-        }} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
+        />
       </ThemeProvider>
     </AuthProvider>
   );
