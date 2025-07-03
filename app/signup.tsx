@@ -1,6 +1,5 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,58 +7,64 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
+  Animated,
+  Pressable,
+  TouchableOpacity,
 } from 'react-native';
+import { MaterialIcons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '@/constants/Colors';
 
 export default function SignUp() {
+  const router = useRouter();
+  const { login } = useAuth();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const { login } = useAuth();
+
+   const [rememberMe, setRememberMe] = useState(false);
+
 
   const validateName = (name: string) => name.trim().length > 0;
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 8;
 
   const handleSignUp = () => {
-    let isValid = true;
+    let valid = true;
 
     if (!validateName(name)) {
       setNameError('Please enter your full name');
-      isValid = false;
+      valid = false;
     } else {
       setNameError('');
     }
 
     if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
-      isValid = false;
+      setEmailError('Enter a valid email address');
+      valid = false;
     } else {
       setEmailError('');
     }
 
     if (!validatePassword(password)) {
-      setPasswordError('Password must be at least 8 characters long');
-      isValid = false;
+      setPasswordError('Password must be at least 8 characters');
+      valid = false;
     } else {
       setPasswordError('');
     }
 
-    if (isValid) {
-      // Log in the user and navigate to the main app
+    if (valid) {
       login(email, name);
       router.replace({
         pathname: '/(tabs)',
         params: { name, email },
       });
-      
     }
   };
 
@@ -67,39 +72,57 @@ export default function SignUp() {
     router.push('/login');
   };
 
+  // Button animation
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scale, { toValue: 0.96, useNativeDriver: true }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#ff758c', '#ff7eb3']} style={styles.gradientBackground}>
-        <KeyboardAvoidingView
-          style={styles.inner}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-          <Text style={styles.title}>Create Account</Text>
+      <KeyboardAvoidingView
+        style={styles.inner}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Text style={styles.title}>Create Account</Text>
 
+        <View style={styles.inputGroup}>
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder="User Name"
             placeholderTextColor="#999"
             onChangeText={setName}
             value={name}
-            autoCapitalize="words"
           />
           {nameError ? <Text style={styles.error}>{nameError}</Text> : null}
+        </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            onChangeText={setEmail}
-            value={email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
-
-          <View style={{ position: 'relative' }}>
+        <View style={styles.inputGroup}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="email" size={20} color="#999" style={styles.icon} />
             <TextInput
-              style={styles.input}
+              style={styles.inputWithIcon}
+              placeholder="Email"
+              placeholderTextColor="#999"
+              onChangeText={setEmail}
+              value={email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+        </View>
+
+        <View style={styles.inputGroup}>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons name="lock" size={20} color="#999" style={styles.icon} />
+            <TextInput
+              style={styles.inputWithIcon}
               placeholder="Password"
               placeholderTextColor="#999"
               onChangeText={setPassword}
@@ -107,41 +130,51 @@ export default function SignUp() {
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 18,
-                zIndex: 1,
-              }}
+              style={styles.eyeIcon}
               onPress={() => setShowPassword((prev) => !prev)}
-              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
             >
-              <Text style={{ color: '#888', fontWeight: 'bold', fontSize: 14 }}>
-                {showPassword ? 'Hide' : 'Show'}
-              </Text>
+              <MaterialCommunityIcons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={22}
+                color="#999"
+              />
             </TouchableOpacity>
           </View>
           {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+        </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <LinearGradient
-              colors={['#43e97b', '#38f9d7']}
-              style={styles.buttonGradient}
-            >
+        <View style={styles.rememberContainer}>
+  <TouchableOpacity
+    style={styles.checkbox}
+    onPress={() => setRememberMe(!rememberMe)}
+  >
+    {rememberMe && <View style={styles.checked} />}
+  </TouchableOpacity>
+  <Text style={styles.rememberText}>Remember me</Text>
+</View>
+
+
+        <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handleSignUp}>
+          <Animated.View style={[styles.button, { transform: [{ scale }] }]}>
+            <View style={styles.buttonContent}>
               <Text style={styles.buttonText}>Sign Up</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              <View style={styles.iconCircle}>
+                <AntDesign name="arrowright" size={24} color="#0056D2" />
+              </View>
+            </View>
+          </Animated.View>
+        </Pressable>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              Already have an account?{' '}
-              <Text style={styles.link} onPress={handleLoginRedirect}>
-                Login
-              </Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Already have an account?{' '}
+            <Text style={styles.link} onPress={handleLoginRedirect}>
+              Login
             </Text>
-          </View>
-        </KeyboardAvoidingView>
-      </LinearGradient>
+          </Text>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -149,12 +182,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradientBackground: {
-    flex: 1,
-    paddingTop: 50,
-    paddingBottom: 50,
-    justifyContent: 'center',
+    backgroundColor: '#F5FAFB',
   },
   inner: {
     flex: 1,
@@ -162,55 +190,124 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0056D2',
     textAlign: 'center',
     marginBottom: 32,
   },
+  inputGroup: {
+    marginBottom: 8,
+  },
   input: {
     backgroundColor: '#fff',
-    borderColor: '#ddd',
+    borderColor: '#fff',
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 15,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     marginBottom: 12,
+
+    // Shadow
     shadowColor: '#000',
-    shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
-  passwordContainer: {
-    position: 'relative',
+
+  rememberContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 12,
+  marginBottom: 8,
+},
+
+checkbox: {
+  width: 20,
+  height: 20,
+  borderWidth: 1.5,
+  borderColor: Colors.light.primary,
+  borderRadius: 4,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 10,
+},
+
+checked: {
+  width: 12,
+  height: 12,
+  backgroundColor: Colors.light.primary,
+  borderRadius: 2,
+},
+
+rememberText: {
+  fontSize: 14,
+  color: '#333',
+},
+
+
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#fff',
+    paddingHorizontal: 12,
+    marginBottom: 12,
+
+    shadowColor: '#0056',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  inputWithIcon: {
+    flex: 1,
+    height: 50,
+    fontSize: 16,
+    color: '#333',
   },
   eyeIcon: {
     position: 'absolute',
-    right: 16,
-    top: 12,
+    right: 12,
   },
   error: {
-    color: '#ff4d4f',
+    color: '#EA5455',
     fontSize: 13,
     marginBottom: 8,
     marginLeft: 4,
   },
   button: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 12,
+    backgroundColor: '#0056D2',
+    borderRadius: 50,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    marginTop: 16,
   },
-  buttonGradient: {
-    paddingVertical: 16,
+  buttonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
+    justifyContent: 'space-between',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
+  iconCircle: {
+    backgroundColor: '#fff',
+    borderRadius: 999,
+    padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   footer: {
     marginTop: 32,
@@ -218,10 +315,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#fff',
+    color: '#4E5D78',
   },
   link: {
     fontWeight: 'bold',
-    color: '#ffd700',
+    color: '#0056D2',
   },
 });

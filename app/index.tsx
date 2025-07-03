@@ -1,18 +1,30 @@
+// app/index.tsx
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SplashScreen from 'expo-splash-screen';
 
 export default function LoadingScreen() {
   const router = useRouter();
+  const [done, setDone] = useState(false);
 
-  // Animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.7)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
   const spinnerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Parallel animation for logo (fade + scale)
+    SplashScreen.hideAsync(); // Hide once layout is mounted
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -26,7 +38,6 @@ export default function LoadingScreen() {
       }),
     ]).start();
 
-    // Slide in title/subtitle
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 900,
@@ -35,7 +46,6 @@ export default function LoadingScreen() {
       useNativeDriver: true,
     }).start();
 
-    // Spinner rotation (infinite loop)
     Animated.loop(
       Animated.timing(spinnerAnim, {
         toValue: 1,
@@ -45,14 +55,18 @@ export default function LoadingScreen() {
       })
     ).start();
 
-    // Navigate after 5 seconds
-    const timer = setTimeout(() => {
-      router.replace('/login');
-    }, 5000);
+    const timer = setTimeout(async () => {
+      const completed = await AsyncStorage.getItem('onboardingComplete');
+      if (completed === 'true') {
+        router.replace('/signup');
+      } else {
+        router.replace('/onboarding');
+      }
+    }, 4000); // Adjust duration as needed
+
     return () => clearTimeout(timer);
   }, []);
 
-  // Spinner rotation interpolation
   const spin = spinnerAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
@@ -73,7 +87,7 @@ export default function LoadingScreen() {
         ]}
       />
       <Animated.View style={{ transform: [{ translateY: slideAnim }], opacity: fadeAnim }}>
-        <Text style={styles.title}>Welcome to Learnova</Text>
+        <Text style={styles.title}>Welcome to Learnable</Text>
         <Text style={styles.subtitle}>Start your learning journey today</Text>
       </Animated.View>
       <Animated.View style={{ marginTop: 40, transform: [{ rotate: spin }] }}>

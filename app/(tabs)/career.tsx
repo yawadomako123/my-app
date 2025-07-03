@@ -1,3 +1,4 @@
+import { Colors, getThemeColors } from '@/constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -8,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const filters = [
   'All',
@@ -359,41 +361,41 @@ const careers = [
 
 export default function CareerScreen() {
   const [selectedFilter, setSelectedFilter] = useState('All');
+  const { isDarkMode } = useTheme();
+  const colors = getThemeColors(isDarkMode);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Explore Careers</Text>
-      <Text style={styles.subheader}>
-        Discover roles that match your skills and interests.
-      </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.header, { color: colors.primary }]}>Explore Careers</Text>
+      <Text style={[styles.subheader, { color: colors.text }]}>Discover roles that match your skills and interests.</Text>
 
-      <View style={styles.filtersContainer}>
+      <View style={[styles.filtersContainer, { backgroundColor: colors.surface }]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filters}
           keyboardShouldPersistTaps="always"
         >
-        {filters.map((filter) => (
-          <TouchableOpacity
-            key={filter}
-            onPress={() => setSelectedFilter(filter)}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter && styles.activeFilterButton,
-            ]}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                selectedFilter === filter && styles.activeFilterText,
-              ]}
+          {filters.map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              onPress={() => setSelectedFilter(filter)}
+              style={[styles.filterButton, {
+                backgroundColor: selectedFilter === filter ? colors.primary : colors.surface,
+                borderColor: selectedFilter === filter ? colors.primary : colors.border,
+              }]}
+              activeOpacity={0.7}
             >
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[styles.filterText, {
+                  color: selectedFilter === filter ? colors.background : colors.muted,
+                  fontWeight: selectedFilter === filter ? '600' : '500',
+                }]}
+              >
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       </View>
 
@@ -403,23 +405,23 @@ export default function CareerScreen() {
             (career) => selectedFilter === 'All' || career.category === selectedFilter
           )
           .map((career, index) => (
-            <View key={index} style={styles.card}>
+            <View key={index} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={styles.cardHeader}>
                 <MaterialCommunityIcons
                   name={career.icon}
                   size={30}
-                  color="#4F46E5"
+                  color={colors.primary}
                 />
                 <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.cardTitle}>{career.title}</Text>
-                  <Text style={styles.categoryTag}>{career.category}</Text>
+                  <Text style={[styles.cardTitle, { color: colors.text }]}>{career.title}</Text>
+                  <Text style={[styles.categoryTag, { color: colors.muted }]}>{career.category}</Text>
                 </View>
               </View>
-              <Text style={styles.cardDescription}>{career.description}</Text>
+              <Text style={[styles.cardDescription, { color: colors.text }]}>{career.description}</Text>
               <View style={styles.likesContainer}>
                 {career.likes.map((like, i) => (
-                  <View key={i} style={styles.likeTag}>
-                    <Text style={styles.likeText}>{like}</Text>
+                  <View key={i} style={[styles.likeTag, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                    <Text style={[styles.likeText, { color: colors.primary }]}>{like}</Text>
                   </View>
                 ))}
               </View>
@@ -433,24 +435,23 @@ export default function CareerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
     padding: 16,
   },
   header: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1E293B',
-    marginBottom: 4,
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   subheader: {
     fontSize: 16,
-    color: '#64748B',
+    textAlign: 'center',
     marginBottom: 16,
   },
   filtersContainer: {
     height: 56,
     width: '100%',
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     marginBottom: 8,
     elevation: 1,
@@ -462,52 +463,39 @@ const styles = StyleSheet.create({
   filters: {
     paddingLeft: 16,
     paddingRight: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     height: '100%',
     flexDirection: 'row',
   },
   filterButton: {
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 16,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
     marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
     height: 36,
     flexShrink: 0,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  activeFilterButton: {
-    backgroundColor: '#4338CA',
-    borderColor: '#3730A3',
   },
   filterText: {
     fontSize: 14,
-    color: '#475569',
-    fontWeight: '500',
-  },
-  activeFilterText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
   },
   cardContainer: {
     paddingBottom: 80,
-    paddingTop: 7,
+    paddingTop: 8,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#0056',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -517,35 +505,31 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1E293B',
     marginBottom: 6,
   },
   categoryTag: {
     fontSize: 12,
-    color: '#475569',
   },
   cardDescription: {
     fontSize: 14,
-    color: '#4B5563',
     marginBottom: 8,
   },
   likesContainer: {
     flexDirection: 'row',
-    gap:10,
+    gap: 10,
     flexWrap: 'wrap',
     marginTop: 12,
   },
   likeTag: {
-    backgroundColor: '#F1F5F9',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 7,
+    borderWidth: 1,
     alignSelf: 'flex-start',
     fontWeight: '500',
   },
   likeText: {
     fontSize: 12,
-    color: '#4F46E5',
     fontWeight: '500',
   },
 });

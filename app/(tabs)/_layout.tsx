@@ -2,16 +2,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getThemeColors } from '../../constants/Colors';
 
 export default function TabLayout() {
+  const { isDarkMode } = useTheme();
+  const colors = getThemeColors(isDarkMode);
+
   return (
-    <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+    <SafeAreaView edges={['bottom']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
         <Tabs
           screenOptions={{
-            tabBarActiveTintColor: '#0056D2',
-            tabBarInactiveTintColor: '#666',
+            tabBarActiveTintColor: colors.primary,
+            tabBarInactiveTintColor: colors.icon,
             tabBarStyle: {
+              backgroundColor: colors.background,
               borderTopWidth: 0,
               elevation: 0,
               height: 60,
@@ -28,45 +34,35 @@ export default function TabLayout() {
             name="index"
             options={{
               title: 'Home',
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="home-outline" size={size} color={color} />
-              ),
+              tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
             }}
           />
           <Tabs.Screen
             name="explore"
             options={{
               title: 'Explore',
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="compass-outline" size={size} color={color} />
-              ),
+              tabBarIcon: ({ color, size }) => <Ionicons name="compass-outline" size={size} color={color} />,
             }}
           />
           <Tabs.Screen
             name="career"
             options={{
               title: 'Career',
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="briefcase-outline" size={size} color={color} />
-              ),
+              tabBarIcon: ({ color, size }) => <Ionicons name="briefcase-outline" size={size} color={color} />,
             }}
           />
           <Tabs.Screen
             name="search"
             options={{
               title: 'Search',
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="search-outline" size={size} color={color} />
-              ),
+              tabBarIcon: ({ color, size }) => <Ionicons name="search-outline" size={size} color={color} />,
             }}
           />
           <Tabs.Screen
             name="profile"
             options={{
               title: 'Profile',
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="person-outline" size={size} color={color} />
-              ),
+              tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
             }}
           />
         </Tabs>
@@ -78,7 +74,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
