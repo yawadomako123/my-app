@@ -13,6 +13,7 @@ import {
   Pressable,
   Animated,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import {
   AntDesign,
@@ -20,6 +21,7 @@ import {
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
+import { loginUser } from '../../utils/api'; // ✅ Correct import
 
 const Login = () => {
   const router = useRouter();
@@ -39,7 +41,7 @@ const Login = () => {
   const validatePassword = (password: string) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/.test(password.trim());
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     let valid = true;
 
     if (!validateEmail(email)) {
@@ -58,8 +60,21 @@ const Login = () => {
       setPasswordError('');
     }
 
-    if (valid) {
-      router.replace('/(tabs)');
+    if (!valid) return;
+
+    try {
+      const response = await loginUser(email, password);
+
+      // Expecting response to be like: "Login successful"
+      if (typeof response === 'string' && response.toLowerCase().includes('success')) {
+        await AsyncStorage.setItem('token', 'placeholder-token'); // 🔐 Replace with real token when available
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert('Login Failed', response || 'Invalid credentials');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      Alert.alert('Login Failed', error.message || 'Something went wrong.');
     }
   };
 
@@ -77,14 +92,8 @@ const Login = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        <KeyboardAvoidingView
-          style={styles.inner}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <KeyboardAvoidingView style={styles.inner} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <Text style={styles.header}>Let's Sign you in</Text>
 
           {/* Username */}
@@ -141,7 +150,7 @@ const Login = () => {
             {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
           </View>
 
-          {/* Remember Me & Forgot Password */}
+          {/* Remember Me */}
           <View style={styles.optionsRow}>
             <TouchableOpacity onPress={() => setRememberMe(!rememberMe)} style={styles.rememberBoxRow}>
               <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
@@ -168,7 +177,6 @@ const Login = () => {
             </Animated.View>
           </Pressable>
 
-          {/* Social Login */}
           <Text style={styles.orText}>Or log in with</Text>
           <View style={styles.socialContainer}>
             <TouchableOpacity style={styles.iconButton} onPress={handleGoogleLogin}>
@@ -179,7 +187,6 @@ const Login = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Sign up redirect */}
           <TouchableOpacity onPress={() => router.push('/auth/signup')}>
             <Text style={styles.signupLink}>Don't have an account? Sign up</Text>
           </TouchableOpacity>

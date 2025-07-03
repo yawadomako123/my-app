@@ -1,13 +1,24 @@
-// app/_layout.tsx
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
-// Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useEffect(() => {
+    const hideSplash = async () => {
+      try {
+        await SplashScreen.hideAsync();
+      } catch (err) {
+        console.warn('Error hiding splash screen:', err);
+      }
+    };
+
+    hideSplash();
+  }, []);
+
   return (
     <AuthProvider>
       <ThemeProvider>

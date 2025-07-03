@@ -20,6 +20,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Colors, getThemeColors } from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
 import ag from '../../assets/images/avatar-placeholder.jpeg'
+import API from '../../utils/api';
+
 
 
 const Profile = () => {
