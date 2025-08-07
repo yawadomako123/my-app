@@ -4,10 +4,8 @@ import {
   Animated,
   Easing,
   StyleSheet,
-  Text,
   View,
   StatusBar,
-  Platform,
 } from 'react-native';
 
 export default function Loadingscreen() {
@@ -84,7 +82,7 @@ export default function Loadingscreen() {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [flipAnim, logoFade, logoScale, titleScale, subtitleSlide, subtitleFade, router]);
 
   // 3D Flip interpolation
   const rotateY = flipAnim.interpolate({

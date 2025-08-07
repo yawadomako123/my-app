@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -12,14 +11,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { Colors, getThemeColors } from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
-import ag from '../../assets/images/avatar-placeholder.jpeg'
+
 
 
 const Profile = () => {
@@ -42,7 +40,7 @@ useEffect(() => {
     toValue: 1,
     useNativeDriver: true,
   }).start();
-}, []);
+}, [avatarAnim]);
 
 const pickImage = async () => {
   const result = await ImagePicker.launchImageLibraryAsync({

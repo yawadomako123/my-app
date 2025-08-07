@@ -12,13 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 import { useAuth } from '../contexts/AuthContext';
 import { getThemeColors } from '@/constants/Colors';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const Settings = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
   const { isDarkMode, toggleTheme } = useTheme();
   const Colors = getThemeColors(isDarkMode);
@@ -32,11 +32,9 @@ const Settings = () => {
       duration: 500,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
-  const handleSignOut = () => {
-    setShowSignOutModal(true);
-  };
+
 
   const confirmSignOut = () => {
     setShowSignOutModal(false);

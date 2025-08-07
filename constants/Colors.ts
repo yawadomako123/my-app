@@ -3,7 +3,7 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#ffffff';
 
-export type Category = 'Technology' | 'Business' | 'Design';
+export type Category = 'Technology' | 'Business' | 'Design' | 'Development' | 'Science' | 'Art' | 'Marketing' | 'Finance';
 
 export const Colors = {
   light: {
@@ -20,6 +20,7 @@ export const Colors = {
     tabIconSelected: tintColorLight,
 
     border: '#E5E7EB',
+    card: '#FFFFFF',
     cardShadow: 'rgba(0, 0, 0, 0.05)',
     error: '#EF4444',
     success: '#10B981',
@@ -32,6 +33,11 @@ export const Colors = {
       Technology: '#B3DBFF',  // Light Blue
       Business: '#FFD8A8',    // Light Orange
       Design: '#E3C6FF',      // Light Purple
+      Development: '#B3DBFF',
+      Science: '#C7F5D1',
+      Art: '#F5C5D1',
+      Marketing: '#FFE5B3',
+      Finance: '#D1C7F5',
     } as Record<Category, string>,
   },
 
@@ -49,6 +55,7 @@ export const Colors = {
     tabIconSelected: tintColorDark,
 
     border: '#2C2E31',
+    card: '#1F2123',
     cardShadow: 'rgba(0, 0, 0, 0.3)',
     error: '#F87171',
     success: '#34D399',
@@ -58,11 +65,14 @@ export const Colors = {
 
     // Category Backgrounds (dark variants)
     categoryBg: {
-Technology: '#A5CFFF',  // Light Teal
-Business:   '#FFD6A5',  // Rose Beige
-Design:     '#CBAACB',  // Dusty Pink
- // Orchid Mist
-  // Light Purple   // Deep Purple
+      Technology: '#A5CFFF',  // Light Teal
+      Business: '#FFD6A5',    // Rose Beige
+      Design: '#CBAACB',      // Dusty Pink
+      Development: '#A5CFFF',
+      Science: '#B3E5B3',
+      Art: '#E5B3C5',
+      Marketing: '#FFE0B3',
+      Finance: '#C5B3E5',
     } as Record<Category, string>,
   },
 };

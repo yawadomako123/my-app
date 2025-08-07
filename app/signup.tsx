@@ -67,7 +67,7 @@ export default function SignUp() {
         } else {
           Alert.alert('Signup Failed', 'Something went wrong.');
         }
-      } catch (err) {
+      } catch {
         Alert.alert('Network Error', 'Could not connect to backend.');
       }
     }

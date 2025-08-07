@@ -92,7 +92,7 @@ const NotificationScreen = () => {
           <View style={styles.enableNotificationsContainer}>
             <Text style={styles.enableNotificationsTitle}>Get notified about important stuff</Text>
             <Text style={styles.enableNotificationsSubtitle}>
-              We'll notify you when
+              We&apos;ll notify you when
             </Text>
             <View style={styles.bulletList}>
               <Text style={styles.bulletPoint}>• Your course progress updates</Text>
@@ -117,7 +117,7 @@ const NotificationScreen = () => {
             <Text style={styles.emptyStateTitle}>Customize your notifications!</Text>
             <Text style={styles.emptyStateText}>No notifications yet</Text>
             <Text style={styles.emptyStateSubtext}>
-              Your notification will appear here once you've received them.
+              Your notification will appear here once you&apos;ve received them.
             </Text>
             <TouchableOpacity style={styles.linkButton}>
               <Text style={styles.linkText}>Missing notifications?</Text>
