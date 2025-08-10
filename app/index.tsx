@@ -50,7 +50,7 @@ export default function LoadingScreen() {
       router.replace('/login');
     }, 5000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [fadeAnim, scaleAnim, slideAnim, spinnerAnim, router]);
 
   // Spinner rotation interpolation
   const spin = spinnerAnim.interpolate({

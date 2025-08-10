@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useRouter } from 'expo-router';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 type User = {
@@ -7,6 +6,8 @@ type User = {
   email: string;
   profileImage?: string;
   token?: string;
+  bio?: string;
+  image?: string;
 } | null;
 
 type AuthContextType = {

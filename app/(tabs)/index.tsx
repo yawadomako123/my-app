@@ -12,13 +12,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
 import { Video } from 'expo-av';
 import { useAuth } from '../../contexts/AuthContext';
 import { Asset } from 'expo-asset';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getThemeColors } from '../../constants/Colors';
-import { useColorScheme } from 'react-native'; // built-in hook
 
 
 const categories = [
@@ -116,10 +116,9 @@ export default function InterfaceScreen() {
       friction: 5,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [avatarAnim]);
 
-  const isInDarkMode = useColorScheme() === 'dark';
-const activeCategoryBg = isInDarkMode ? categoryBgDark : categoryBg;
+
 
 
   const navigateCourse = (id: string) => router.push(`/courses/${id}`);
@@ -163,7 +162,7 @@ const activeCategoryBg = isInDarkMode ? categoryBgDark : categoryBg;
   
      <View style={styles.categoriesColumn}>
       {categories.map((cat) => {
-        const bgColor = Colors.categoryBg[cat.name] ?? Colors.surface;
+        const bgColor = Colors.categoryBg[cat.name as keyof typeof Colors.categoryBg] ?? Colors.surface;
 
         return (
           <TouchableOpacity
@@ -221,7 +220,7 @@ const activeCategoryBg = isInDarkMode ? categoryBgDark : categoryBg;
               <TouchableOpacity style={styles.videoCard} onPress={() => navigateCourse(item.id)}>
                 <Video
                   source={{ uri: getVideoUri(item.id) }}
-                  resizeMode="cover"
+                  resizeMode={'cover' as any}
                   shouldPlay
                   isLooping
                   isMuted

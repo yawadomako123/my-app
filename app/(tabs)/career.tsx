@@ -1,4 +1,4 @@
-import { Colors, getThemeColors } from '@/constants/Colors';
+import { getThemeColors } from '@/constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -408,7 +408,7 @@ export default function CareerScreen() {
             <View key={index} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={styles.cardHeader}>
                 <MaterialCommunityIcons
-                  name={career.icon}
+                  name={career.icon as any}
                   size={30}
                   color={colors.primary}
                 />
